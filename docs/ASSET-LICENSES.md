@@ -36,6 +36,6 @@ Barlow and Barlow Condensed by Jeremy Tribby, SIL Open Font License 1.1. License
 - License: **CC0**, https://polyhaven.com/license
 - Local 1K JPEG diffuse, OpenGL normal and roughness maps in `assets/textures/`. Obtained from the download links on the corresponding Poly Haven pages; filenames retain asset identities. Used with original UVs/material settings; no external requests during play.
 
-## Voodoo tribute
+## Voodoo / Google DeepMind tribute
 
-The Voodoo, Helix Jump and Hole.io names are editorial references in an independent hackathon tribute. Signs and sculptures are original geometry/canvas artwork. No logos or game artwork were copied; this is not an official Voodoo product.
+Voodoo, Helix Jump, Hole.io, Mob Control, Paper.io, Google DeepMind, Gemini, AlphaGo, AlphaFold and Genie are editorial references in an independent hackathon tribute. Signs and sculptures are original geometry/canvas artwork. No logos or game artwork were copied; this is not an official Voodoo or Google product. These names do not identify the actual inference provider.

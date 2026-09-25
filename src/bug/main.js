@@ -582,9 +582,9 @@ class BugGame {
     this.arena.message(win ? "UNPATCHABLE." : "ONE MORE TRY.");
     $("result-title").style.color = win ? "var(--mint)" : "var(--red)";
     $("result-quote").textContent = win
-      ? "“This was not in the acceptance criteria.”"
+      ? "“DeepMind solved Go. Voodoo solved retention. You found the exit.”"
       : this.keyCollected
-        ? "You had the key. You saw the exit. One more try."
+        ? "Voodoo calls this retention. You call it one more try."
         : "That white beacon is your way out. Grab it, then follow the green exits.";
     $("result-time").textContent = `${this.elapsed.toFixed(2)}s`;
     $("result-time-label").textContent = win ? "Escape time" : "Time survived";
@@ -602,7 +602,7 @@ class BugGame {
     else this.audio.tone(70, 0.5, 0.5, "triangle");
     this.audio.say(
       win
-        ? "We will be removing your free will in the next update."
+        ? "Voodoo wants a rematch. DeepMind wants your driving data."
         : "Bug fixed. Please do not try that again.",
     );
   }

@@ -34,3 +34,9 @@ Run `node tests/browser/visual-review.cjs` for desktop/mobile screens plus aspha
 ## Scope
 
 One arena, one vehicle and six bounded patches. The exercised paths pass; this is not a proof that every possible gameplay sequence is bug-free. Real human playtesting remains the way to judge difficulty and replay value.
+
+## Follow-up: Voodoo AND Google DeepMind references
+
+The earlier visual pass underrepresented the requested references. Intro and main billboard now name both; the arena contains DeepMind/Gemini/AlphaGo/AlphaFold/Genie and Voodoo/Helix Jump/Hole.io/Mob Control/Paper.io references. Each local patch has a relevant joke; the subscription director prompt requests one too. Physics and provider routing are unchanged. Rebuilt, 8 server + 7 state tests pass; visual captures refreshed with themed local responses.
+
+Live subscription request after this update returned `source: codex`, patch `barricade`, and “Paper.io called; your route now has borders. Try not to color outside them.” Desktop and mobile captures have no page/network errors or horizontal overflow.

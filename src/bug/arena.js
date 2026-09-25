@@ -44,7 +44,15 @@ export class Arena {
       gate.body.userData = { gate: true };
       this.gates.push(gate);
       this.box([8, 0.12, 0.15], [x, 3.25, 41.6], this.light);
-      this.sign("EXIT  ↗", x, 5.3, 40.85, 7, 1.4, "#a9f4d0");
+      this.sign(
+        `EXIT / ${x === -22 ? "ALPHAGO" : x === 0 ? "GEMINI" : "GENIE"}`,
+        x,
+        5.3,
+        40.85,
+        8.5,
+        1.4,
+        "#a9f4d0",
+      );
       this.box(
         [8, 0.025, 5],
         [x, 0.015, 46],
@@ -164,7 +172,7 @@ export class Arena {
         opacity: 0.5,
       }),
     ).mesh;
-    this.sign("ACCESS KEY", -11, 5, -3, 5, 1, "#f0f0e9");
+    this.sign("GEMINI / ACCESS KEY", -11, 5, -3, 7, 1, "#f0f0e9");
     this.keySign = this.scene.children[this.scene.children.length - 1];
     const converted = new Set();
     this.scene.traverse((o) => {
@@ -219,7 +227,7 @@ export class Arena {
     this.box([30, 8.5, 0.75], [0, 11, 43], dark);
     this.box([30.2, 0.1, 0.95], [0, 15.3, 42.9], this.light);
     this.box([0.13, 8.6, 0.95], [-15, 11, 42.9], this.light);
-    this.sign("VOODOO", 0, 13.65, 42.5, 12, 2.2, "#ff4338");
+    this.sign("VOODOO × GOOGLE DEEPMIND", 0, 13.65, 42.5, 28, 2.2, "#f0f0e9");
     this.billboard = this.sign(
       "ONE MORE TRY.",
       0,
@@ -267,7 +275,7 @@ export class Arena {
     this.helixBall.position.set(2.8, 26, 0);
     this.helix.add(this.helixBall);
     this.scene.add(this.helix);
-    this.sign("HELIX / STRESS TEST", 28, 4.5, 40.8, 11, 1.4, "#f0f0e9");
+    this.sign("HELIX JUMP / STRESS TEST", 28, 4.5, 40.8, 11, 1.4, "#f0f0e9");
 
     // A sealed black aperture, a wink to Hole.io. Outside the playable enclosure.
     const aperture = new THREE.Mesh(
@@ -285,7 +293,7 @@ export class Arena {
     this.scene.add(rim);
     this.sign("HOLE.IO / DO NOT FEED", -27, 4.5, 40.8, 11, 1.4, "#f0f0e9");
     this.sign(
-      "YOUR EXIT IS OUR BUG.",
+      "GOOGLE DEEPMIND",
       -33.9,
       6.5,
       3,
@@ -295,7 +303,7 @@ export class Arena {
       Math.PI / 2,
     );
     this.sign(
-      "KEEP BREAKING THINGS.",
+      "VOODOO / RETENTION LAB",
       33.9,
       6.5,
       3,
@@ -304,6 +312,79 @@ export class Arena {
       "#f0f0e9",
       -Math.PI / 2,
     );
+
+    const researchBlue = new THREE.MeshBasicMaterial({ color: 0x589dff });
+    this.box([0.13, 0.12, 27], [-34, 9, 3], researchBlue);
+    this.sign(
+      "SOLVED GO. STILL CAN'T PARK.",
+      -33.9,
+      4.8,
+      3,
+      23,
+      1.35,
+      "#589dff",
+      Math.PI / 2,
+    );
+    this.sign(
+      "ONE MORE RUN IS THE BUSINESS MODEL.",
+      33.9,
+      4.8,
+      3,
+      25,
+      1.35,
+      "#ff4338",
+      -Math.PI / 2,
+    );
+    this.sign(
+      "ALPHAFOLD / PLEASE DO NOT FOLD THE CAR",
+      -33.9,
+      7,
+      27,
+      19,
+      1.6,
+      "#f0f0e9",
+      Math.PI / 2,
+    );
+    this.sign(
+      "GENIE / WORLDS WITHOUT EXIT PLANS",
+      -33.9,
+      7,
+      -24,
+      18,
+      1.6,
+      "#589dff",
+      Math.PI / 2,
+    );
+    this.sign(
+      "MOB CONTROL / CROWD NOT INCLUDED",
+      33.9,
+      7,
+      -24,
+      18,
+      1.6,
+      "#f0f0e9",
+      -Math.PI / 2,
+    );
+    this.sign(
+      "PAPER.IO / THIS LANE IS OURS",
+      33.9,
+      7,
+      27,
+      18,
+      1.6,
+      "#ff4338",
+      -Math.PI / 2,
+    );
+    this.groundLabel("ALPHA, GO!", -22, 24, 10, 2.7, 0.6);
+    this.groundLabel("GEMINI TEST TRACK", 16, -25, 13, 2.5, 0.5);
+    // A research exhibit behind the enclosure: protein-like ribbon, not a new obstacle.
+    const ribbon = new THREE.Mesh(
+      new THREE.TorusKnotBufferGeometry(2.3, 0.23, 96, 8),
+      researchBlue,
+    );
+    ribbon.position.set(-40, 10, 26);
+    ribbon.rotation.z = Math.PI / 4;
+    this.scene.add(ribbon);
 
     // Red / ivory curb blocks and panel seams give surfaces a human scale.
     for (const x of [-33.6, 33.6]) {

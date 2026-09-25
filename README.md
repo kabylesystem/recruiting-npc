@@ -71,7 +71,7 @@ The car's runtime geometry is reduced with Blender (`blender --background --pyth
 
 ## Arena design
 
-A nocturnal test facility with photographed asphalt/concrete, metric texture scale, red/ivory curbs and original Voodoo tributes: Helix-inspired sculpture, sealed Hole.io aperture and a “ONE MORE TRY” retention-department billboard. References are part of an independent hackathon demo. Credits are available from the start screen.
+A nocturnal test facility with photographed asphalt/concrete, metric texture scale, red/ivory curbs and original Voodoo / Google DeepMind tributes: Helix-inspired sculpture, sealed Hole.io aperture, AlphaFold ribbon, named AlphaGo/Gemini/Genie exits, research/retention walls and a “ONE MORE TRY” billboard. Local director jokes and the live director prompt refer to those worlds too. References are part of an independent hackathon demo; they do not describe its actual inference provider. Credits are available from the start screen.
 
 ## Credits
 

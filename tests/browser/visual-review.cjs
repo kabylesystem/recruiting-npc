@@ -20,7 +20,7 @@ const fs = require("fs");
     r.fulfill({
       json: {
         patch: "barricade",
-        taunt: "Our retention department has sealed your preferred exit.",
+        taunt: "AlphaGo saw this move coming. Try the other exit.",
         source: "local",
       },
     }),
@@ -83,7 +83,7 @@ const fs = require("fs");
     r.fulfill({
       json: {
         patch: "mirror",
-        taunt: "Left is now a matter of opinion.",
+        taunt: "Gemini has two sides. Your steering does too.",
         source: "local",
       },
     }),
