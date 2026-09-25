@@ -40,3 +40,15 @@ One arena, one vehicle and six bounded patches. The exercised paths pass; this i
 The earlier visual pass underrepresented the requested references. Intro and main billboard now name both; the arena contains DeepMind/Gemini/AlphaGo/AlphaFold/Genie and Voodoo/Helix Jump/Hole.io/Mob Control/Paper.io references. Each local patch has a relevant joke; the subscription director prompt requests one too. Physics and provider routing are unchanged. Rebuilt, 8 server + 7 state tests pass; visual captures refreshed with themed local responses.
 
 Live subscription request after this update returned `source: codex`, patch `barricade`, and “Paper.io called; your route now has borders. Try not to color outside them.” Desktop and mobile captures have no page/network errors or horizontal overflow.
+
+## Follow-up: first-play comprehension
+
+Kusaila reported that the gameplay itself remained incomprehensible. The entry screen now illustrates three concrete steps in French. The world contains a recognizable key, ground arrows and a destination label with distance; gates change their label and light when unlocked. The current objective is never replaced by active-effect statuses. The timer and first director request wait for forward/reverse input (or recovery). Each patch states its actual effect and relevant input in French. Voodoo / Google DeepMind references remain in the world and jokes.
+
+`node tests/browser/onboarding-check.cjs` exercises idle start (60 seconds unchanged, zero director calls), first movement, then drives using the game's current guidance target and real keyboard/Cannon mechanics. No teleport or hardcoded pickup/exit path is used. Desktop, portrait and landscape screenshots are under `artifacts/onboarding/`; objective/patch overlap checks and page errors are part of this suite. The guided run escaped in approximately 11.5 simulation seconds with a scripted local director. This proves the exercised path, not that a new human player understands or enjoys it.
+
+The first visual pass exposed destination labels overlapping the HUD. Placement now avoids the objective, active-effect panel and patch card; corrected renders were inspected at 1440×900, 390×844 and 844×390.
+
+Final checks for this update: build succeeds, all 7 state unit tests pass, and state-check, gameplay-check and onboarding-check finish successfully with no page errors. The guided run in the final check took 11.4 simulation seconds. Screenshots and logs remain under ignored artifacts/.
+
+The audio assertion initially sampled silence: the idle start now silences the engine, and slow software WebGL can delay sampling past the short test tone. The test suspends drawing only during its 100 ms audio sample and restores rendering in finally; the actual audio graph/tone/mute code is unchanged. The rerun measures a nonzero signal.

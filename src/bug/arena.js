@@ -8,6 +8,7 @@ export class Arena {
     this.dynamic = [];
     this.temporary = [];
     this.gates = [];
+    this.gateSigns = [];
     this.solid = new CANNON.Material("facility");
     this.solid.friction = 0.4;
     this.solid.restitution = 0.12;
@@ -43,11 +44,18 @@ export class Arena {
       const gate = this.box([8, 3.2, 0.6], [x, 1.6, 42], this.metal, true);
       gate.body.userData = { gate: true };
       this.gates.push(gate);
-      this.box([8, 0.12, 0.15], [x, 3.25, 41.6], this.light);
+      gate.indicator = this.box(
+        [8, 0.12, 0.15],
+        [x, 3.25, 41.6],
+        this.light.clone(),
+      ).mesh;
+      this.gateSigns.push(
+        this.sign("FERMÉE / PRENDS LA CLÉ", x, 4.1, 40.85, 8, 1.2, "#f0f0e9"),
+      );
       this.sign(
         `EXIT / ${x === -22 ? "ALPHAGO" : x === 0 ? "GEMINI" : "GENIE"}`,
         x,
-        5.3,
+        6,
         40.85,
         8.5,
         1.4,
@@ -143,17 +151,36 @@ export class Arena {
       this.dynamic.push({ ...thing, initial: thing.body.position.clone() });
     }
     this.key = new THREE.Group();
-    const diamond = new THREE.Mesh(
-      new THREE.OctahedronBufferGeometry(0.85),
-      new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        emissive: 0xb8dddd,
-        emissiveIntensity: 1.3,
-        metalness: 0.4,
-        roughness: 0.15,
-      }),
+    const keyModel = new THREE.Group();
+    const keyMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const head = new THREE.Mesh(
+      new THREE.TorusBufferGeometry(0.6, 0.15, 8, 32),
+      keyMaterial,
     );
-    this.key.add(diamond);
+    head.position.y = 0.7;
+    keyModel.add(head);
+    for (const [size, pos] of [
+      [
+        [0.24, 1.55, 0.22],
+        [0, -0.45, 0],
+      ],
+      [
+        [0.65, 0.23, 0.22],
+        [0.2, -0.6, 0],
+      ],
+      [
+        [0.65, 0.23, 0.22],
+        [0.2, -1.1, 0],
+      ],
+    ]) {
+      const part = new THREE.Mesh(
+        new THREE.BoxBufferGeometry(...size),
+        keyMaterial,
+      );
+      part.position.set(...pos);
+      keyModel.add(part);
+    }
+    this.key.add(keyModel);
     const ring = new THREE.Mesh(
       new THREE.TorusBufferGeometry(1.7, 0.055, 8, 48),
       new THREE.MeshBasicMaterial({ color: 0xf0f0e9 }),
@@ -172,8 +199,32 @@ export class Arena {
         opacity: 0.5,
       }),
     ).mesh;
-    this.sign("GEMINI / ACCESS KEY", -11, 5, -3, 7, 1, "#f0f0e9");
+    this.sign("CLÉ / ROULE DESSUS", -11, 5, -3, 8, 1, "#f0f0e9");
     this.keySign = this.scene.children[this.scene.children.length - 1];
+    this.route = [];
+    const arrowShape = new THREE.Shape();
+    arrowShape.moveTo(0, 0.8);
+    arrowShape.lineTo(-0.65, -0.1);
+    arrowShape.lineTo(-0.23, -0.1);
+    arrowShape.lineTo(-0.23, -0.75);
+    arrowShape.lineTo(0.23, -0.75);
+    arrowShape.lineTo(0.23, -0.1);
+    arrowShape.lineTo(0.65, -0.1);
+    arrowShape.closePath();
+    const arrowGeometry = new THREE.ShapeBufferGeometry(arrowShape);
+    this.routeMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+    });
+    for (let i = 0; i < 9; i++) {
+      const arrow = new THREE.Mesh(arrowGeometry, this.routeMaterial);
+      arrow.rotation.x = -Math.PI / 2;
+      arrow.visible = false;
+      scene.add(arrow);
+      this.route.push(arrow);
+    }
     const converted = new Set();
     this.scene.traverse((o) => {
       if (o.isMesh && o.material && !converted.has(o.material)) {
@@ -541,7 +592,60 @@ export class Arena {
     this.billboard.material.map = this.labelTexture(text, "#f0f0e9", 27 / 4.4);
     old.dispose();
   }
+  setGateLabels(open) {
+    this.gateSigns.forEach((sign, i) => {
+      const old = sign.material.map;
+      sign.material.map = this.labelTexture(
+        open ? "SORTIE OUVERTE" : "FERMÉE / PRENDS LA CLÉ",
+        open ? "#a9f4d0" : "#f0f0e9",
+        8 / 1.2,
+      );
+      old.dispose();
+      this.gates[i].indicator.material.color
+        .set(open ? 0xa9f4d0 : 0xff4338)
+        .convertSRGBToLinear();
+    });
+  }
+  guide(position, keyCollected) {
+    let target = { x: -11, y: 3.9, z: -3 };
+    if (keyCollected) {
+      const score = (x) => {
+        let cost = Math.hypot(x - position.x, 46 - position.z);
+        for (const wall of this.temporary.filter((v) => v.body)) {
+          const t = (wall.body.position.z - position.z) / (46 - position.z);
+          if (
+            t > 0 &&
+            t < 1 &&
+            Math.abs(position.x + (x - position.x) * t - wall.body.position.x) <
+              6
+          )
+            cost += 100;
+        }
+        return cost;
+      };
+      const x = [-22, 0, 22].sort((a, b) => score(a) - score(b))[0];
+      target = { x, y: 2.7, z: 46 };
+    }
+    const dx = target.x - position.x,
+      dz = target.z - position.z;
+    const distance = Math.hypot(dx, dz);
+    this.routeMaterial.color
+      .set(keyCollected ? 0xa9f4d0 : 0xffffff)
+      .convertSRGBToLinear();
+    this.route.forEach((arrow, i) => {
+      const d = 3 + i * 3.3;
+      arrow.visible = d < distance - 1;
+      arrow.position.set(
+        position.x + (dx / Math.max(distance, 1)) * d,
+        0.065,
+        position.z + (dz / Math.max(distance, 1)) * d,
+      );
+      arrow.rotation.z = Math.atan2(-dx, -dz);
+    });
+    return { ...target, distance };
+  }
   unlock() {
+    this.setGateLabels(true);
     this.message("RUN. WE DARE YOU.");
     this.key.visible = false;
     this.keyBeam.visible = false;
@@ -556,6 +660,10 @@ export class Arena {
     this.message("ONE MORE TRY.");
     this.clearPatches();
     this.open = false;
+    this.setGateLabels(false);
+    this.route.forEach((arrow) => {
+      arrow.visible = false;
+    });
     this.key.visible = true;
     this.keyBeam.visible = true;
     this.keySign.visible = true;

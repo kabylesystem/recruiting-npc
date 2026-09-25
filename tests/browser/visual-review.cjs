@@ -93,6 +93,12 @@ const fs = require("fs");
   await m.screenshot({ path: "artifacts/review/06-intro-mobile.png" });
   await m.locator("#start").click();
   await m.evaluate(() => {
+    __bug.keys.add("KeyW");
+    __bug.tick(1 / 60);
+    __bug.keys.clear();
+  });
+  await m.waitForFunction(() => __bug.patchDecision);
+  await m.evaluate(() => {
     for (let i = 0; i < 390; i++) __bug.tick(1 / 60);
   });
   await m.screenshot({ path: "artifacts/review/07-patch-mobile.png" });

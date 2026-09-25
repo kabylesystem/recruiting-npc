@@ -39,6 +39,9 @@ const executablePath =
       "mirror",
     ]) {
       g.start();
+      g.keys.add("KeyW");
+      g.tick(1 / 60);
+      g.keys.clear();
       g.applyPatch({
         patch: id,
         taunt: "Runtime effect check.",
@@ -95,17 +98,25 @@ const executablePath =
   assert.equal(await page.evaluate(() => __bug.state), "playing");
   const audio = await page.evaluate(async () => {
     const a = __bug.audio;
-    await a.enable();
-    a.tone(220, 0.4, 0.5);
-    await new Promise((r) => setTimeout(r, 100));
-    const data = new Float32Array(a.analyser.fftSize);
-    a.analyser.getFloatTimeDomainData(data);
-    const rms = Math.sqrt(
-      data.reduce((sum, v) => sum + v * v, 0) / data.length,
-    );
-    const state = a.context.state;
-    a.mute();
-    return { state, rms, mutedGain: a.master.gain.value, enabled: a.enabled };
+    // Software WebGL can delay this sample beyond the short tone's lifetime.
+    // Keep the game loop active, but suspend drawing during the audio measurement.
+    const render = __bug.renderer.render;
+    __bug.renderer.render = () => {};
+    try {
+      await a.enable();
+      a.tone(220, 0.4, 0.5);
+      await new Promise((r) => setTimeout(r, 100));
+      const data = new Float32Array(a.analyser.fftSize);
+      a.analyser.getFloatTimeDomainData(data);
+      const rms = Math.sqrt(
+        data.reduce((sum, v) => sum + v * v, 0) / data.length,
+      );
+      const state = a.context.state;
+      a.mute();
+      return { state, rms, mutedGain: a.master.gain.value, enabled: a.enabled };
+    } finally {
+      __bug.renderer.render = render;
+    }
   });
   assert.equal(audio.state, "running");
   assert.ok(audio.rms > 0);
@@ -113,6 +124,9 @@ const executablePath =
   assert.equal(audio.enabled, false);
   // Timeout and immediate retry, preserving a clean round.
   await page.evaluate(() => {
+    __bug.keys.add("KeyW");
+    __bug.tick(1 / 60);
+    __bug.keys.clear();
     __bug.left = 0.01;
     __bug.tick(0.02);
   });

@@ -21,13 +21,15 @@ The original Sketchbook scene is available at `/game/sketchbook.html`.
 - WASD physical keys (ZQSD on AZERTY), or arrow keys: drive.
 - Space: handbrake / drift.
 - Shift: rechargeable boost.
-- F (or touch “Flip car”): recover an overturned vehicle; the three-second penalty is included in the final score.
+- F (or touch “Sur les roues”): recover an overturned vehicle; the three-second penalty is included in the final score.
 - R: immediately restart. Escape: pause.
 - Touch controls are available on phones. Landscape gives a wider view.
 
 ## Rules
 
 You start in the getaway car. Collect the white access key, then cross the perimeter through any of three exits before the 60-second simulation timer runs out. The director gets at most two interventions per attempt. Patches expire; every route is not sealed at once.
+
+The timer and director wait for the first forward/reverse input. Ground arrows and a distance marker lead to a recognizable white key, then to an open green gate. French instructions keep the current objective visible separately from active effects; each rule explains its consequence and the relevant controls. Recovery also starts the timer and charges its usual penalty.
 
 | Patch | Actual effect | Opportunity |
 | --- | --- | --- |
@@ -62,6 +64,7 @@ node --test tests/unit/game-state.cjs
 node tests/browser/state-check.cjs
 node tests/browser/drive-check.cjs
 node tests/browser/gameplay-check.cjs
+node tests/browser/onboarding-check.cjs # idle start, guided escape and mobile screenshots
 node tests/browser/visual-review.cjs # desktop/mobile and material close-ups
 ```
 

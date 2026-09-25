@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#101316" />
     <meta
       name="description"
-      content="Steal the car. Break the rules. Escape an AI that patches the game while you play."
+      content="Roule sur la clé blanche, puis franchis une porte verte avant 60 secondes. Une IA tente de bloquer ta fuite."
     />
     <title>YOU ARE THE BUG — Break the game.</title>
     <link
@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="dist/bug.css" />
   </head>
   <body>
-    <main id="game" aria-label="Driving escape game"></main>
+    <main id="game" aria-label="Jeu de fuite en voiture"></main>
     <div id="vignette"></div>
     <div id="impact"></div>
     <header id="masthead">
@@ -27,10 +27,10 @@
       ><button
         id="sound"
         class="icon-button"
-        aria-label="Enable sound"
-        title="Toggle sound"
+        aria-label="Activer le son"
+        title="Activer ou couper le son"
       >
-        Sound off
+        Son coupé
       </button>
     </header>
     <section id="intro" class="screen">
@@ -38,36 +38,85 @@
         <p class="intro-line">
           <span class="live-dot"></span> Dear Voodoo &amp; Google DeepMind.
         </p>
-        <h1>YOU ARE<br />THE <span>BUG.</span></h1>
+        <h1>YOU ARE THE <span>BUG.</span></h1>
+        <p class="intro-mission">Prends la clé. Passe la porte. Échappe-toi.</p>
+        <ol class="mission-steps" aria-label="Comment gagner">
+          <li>
+            <svg
+              viewBox="0 0 48 48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <circle cx="16" cy="17" r="9" />
+              <path d="m23 24 17 17m-7-7 5-5m-12-2 5-5" />
+            </svg>
+            <span class="step-number">01</span
+            ><strong>Roule sur la<br />clé blanche</strong>
+          </li>
+          <li>
+            <svg
+              viewBox="0 0 48 48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <path d="M8 42V6h27v36M4 42h36M20 24h24m-7-7 7 7-7 7" />
+            </svg>
+            <span class="step-number">02</span
+            ><strong>Passe une<br />porte verte</strong>
+          </li>
+          <li>
+            <svg
+              viewBox="0 0 48 48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              aria-hidden="true"
+            >
+              <circle cx="24" cy="27" r="16" />
+              <path d="M24 17v11l7 4M18 4h12M24 4v7m12 1 4-4" />
+            </svg>
+            <span class="step-number">03</span
+            ><strong>Avant<br />60 secondes</strong>
+          </li>
+        </ol>
         <p class="intro-description">
-          Steal the key. Find an exit.<br />The director will patch your escape
-          plan.
+          L’IA essaie de te bloquer : sol glissant, murs, commandes inversées. À
+          toi de t’adapter.
         </p>
         <button id="start" class="primary" disabled>
-          <span id="start-label">Loading the getaway car…</span
+          <span id="start-label">Préparation de la voiture…</span
           ><span aria-hidden="true">↗</span>
         </button>
-        <p class="intro-controls">
-          WASD / ZQSD or arrows to drive · Space to drift
+        <p class="intro-controls keyboard-instructions">
+          <kbd>↑</kbd> Avancer <span>·</span> <kbd>← →</kbd> Tourner
+          <span>·</span> ZQSD aussi
+        </p>
+        <p class="intro-controls touch-instructions">
+          Maintiens ↑ pour avancer, ← → pour tourner.
         </p>
         <a
           class="credits"
           href="/game/credits.html"
           target="_blank"
           rel="noopener"
-          >Credits</a
+          >Crédits</a
         >
       </div>
       <div class="intro-stamp">
-        <span>Paris hackathon edition</span><strong>RUIN THE BENCHMARK.</strong
-        ><span>Escape the lab. Come back voluntarily.</span>
+        <span>Voodoo × Google DeepMind · Clin d’œil indépendant</span
+        ><strong>LE LABO VEUT TE GARDER.</strong
+        ><span>Montre-lui la sortie.</span>
       </div>
     </section>
-    <section id="hud" hidden aria-label="Game status">
+    <section id="hud" hidden aria-label="État de la partie">
       <div class="objective">
-        <span id="round-label">Attempt 01</span>
-        <h2 id="objective">Steal the access key.</h2>
-        <p id="objective-hint">The white beacon. Then any exit.</p>
+        <span id="round-label">Tentative 01</span>
+        <h2 id="objective">Roule sur la clé blanche.</h2>
+        <p id="objective-hint">Suis le repère blanc.</p>
       </div>
       <div class="timer">
         <span id="time">60.00</span>
@@ -75,13 +124,13 @@
       </div>
       <div class="director">
         <span class="live-dot"></span
-        ><span id="director-label">Director connecting</span>
+        ><span id="director-label">Connexion du directeur</span>
         <div id="patch-budget"><i></i><i></i></div>
       </div>
       <div id="patch" role="status" aria-live="polite" hidden>
         <div class="patch-top">
           <span id="patch-version">Patch 0.0.1</span
-          ><span id="patch-kind">Rule changed</span>
+          ><span id="patch-kind">Règle modifiée</span>
         </div>
         <h2 id="patch-title"></h2>
         <p id="patch-taunt"></p>
@@ -93,81 +142,97 @@
           id="map"
           width="220"
           height="240"
-          aria-label="Arena map: white key, mint exits and your red car"
+          aria-label="Plan : clé blanche, sorties vertes, voiture rouge"
         ></canvas
-        ><span id="key-label">○ Access key missing</span>
+        ><span id="key-label">○ Clé à récupérer</span>
       </div>
       <div id="toast" role="status"></div>
+      <div id="drive-prompt" role="status">
+        <strong>Maintiens ↑ pour avancer</strong>
+        <span>← → pour tourner · Le chrono démarre quand tu accélères.</span>
+      </div>
+      <div id="effect-status" hidden aria-live="polite"></div>
+      <div id="goal-marker" hidden>
+        <span id="goal-label">CLÉ BLANCHE</span>
+        <strong id="goal-distance"></strong>
+        <svg
+          class="goal-pointer"
+          viewBox="0 0 24 16"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="m3 3 9 9 9-9" stroke="currentColor" stroke-width="3" />
+        </svg>
+      </div>
       <div class="controls">
-        <span><kbd>↑↓←→</kbd> Drive</span><span><kbd>Space</kbd> Drift</span
-        ><span><kbd>Shift</kbd> Boost</span><span><kbd>R</kbd> Retry</span
-        ><span><kbd>Esc</kbd> Pause</span>
+        <span><kbd>↑↓←→</kbd> Conduire</span
+        ><span><kbd>Espace</kbd> Frein</span> <span><kbd>Shift</kbd> Boost</span
+        ><span><kbd>R</kbd> Rejouer</span>
+        <span><kbd>Échap</kbd> Pause</span>
       </div>
       <div class="speed">
         <strong id="speed">0</strong><span>km/h</span>
         <div class="boost-meter"><i id="boost-fill"></i></div>
-        <span id="boost-label">Boost ready</span>
+        <span id="boost-label">Boost prêt</span>
       </div>
       <div id="touch-controls">
         <div>
-          <button data-key="KeyA" aria-label="Steer left">←</button
-          ><button data-key="KeyD" aria-label="Steer right">→</button>
+          <button data-key="KeyA" aria-label="Tourner à gauche">←</button
+          ><button data-key="KeyD" aria-label="Tourner à droite">→</button>
         </div>
         <div>
-          <button data-key="Space" aria-label="Brake">Brake</button
-          ><button data-key="KeyS" aria-label="Reverse">↓</button
-          ><button data-key="KeyW" aria-label="Accelerate">↑</button
+          <button data-key="Space" aria-label="Frein">Frein</button
+          ><button data-key="KeyS" aria-label="Reculer">↓</button
+          ><button data-key="KeyW" aria-label="Accélérer">↑</button
           ><button data-key="ShiftLeft" aria-label="Boost">Boost</button>
         </div>
       </div>
       <button
         id="recover-touch"
         class="icon-button"
-        aria-label="Put the car back on its wheels, costs 3 seconds"
+        aria-label="Remettre la voiture sur ses roues, coûte 3 secondes"
       >
-        Flip car · −3s
+        Sur les roues · −3 s
       </button>
-      <button id="pause-touch" class="icon-button" aria-label="Pause game">
+      <button id="pause-touch" class="icon-button" aria-label="Mettre en pause">
         Ⅱ
       </button>
     </section>
     <section id="pause" class="screen backdrop" hidden>
       <div class="result-copy">
-        <p>Simulation suspended.</p>
-        <h2>TAKE A<br />BREATH.</h2>
+        <p>Le chrono est en pause.</p>
+        <h2>PETITE<br />PAUSE.</h2>
         <button id="resume" class="primary">
-          Back to breaking things <span>↗</span></button
-        ><button id="pause-retry" class="text-button">Restart attempt</button>
+          Reprendre la fuite <span>↗</span></button
+        ><button id="pause-retry" class="text-button">Recommencer</button>
       </div>
     </section>
     <section id="result" class="screen backdrop" hidden>
       <div class="result-copy">
-        <p id="result-eyebrow">Containment failed.</p>
-        <h2 id="result-title">UNPATCHABLE.</h2>
+        <p id="result-eyebrow">Tu as trouvé la sortie.</p>
+        <h2 id="result-title">ÉCHAPPÉ !</h2>
         <p id="result-quote"></p>
         <div class="result-stats">
           <div>
             <strong id="result-time"></strong
-            ><span id="result-time-label">Escape time</span>
+            ><span id="result-time-label">Temps de fuite</span>
           </div>
           <div>
-            <strong id="result-patches"></strong><span>Rules survived</span>
+            <strong id="result-patches"></strong><span>Pièges traversés</span>
           </div>
-          <div>
-            <strong id="result-best"></strong><span>Personal best</span>
-          </div>
+          <div><strong id="result-best"></strong><span>Ton record</span></div>
         </div>
         <div id="result-history"></div>
         <button id="retry" class="primary">
-          One more attempt <span>↗</span></button
-        ><button id="share" class="text-button">Copy my result</button>
+          Encore une partie <span>↗</span></button
+        ><button id="share" class="text-button">Copier mon résultat</button>
       </div>
     </section>
     <div id="fatal" class="screen backdrop" hidden>
       <div class="result-copy">
-        <h2>SIMULATION<br />OFFLINE.</h2>
+        <h2>LE JEU<br />EST ARRÊTÉ.</h2>
         <p id="fatal-reason"></p>
-        <button class="primary" onclick="location.reload()">Try again</button>
+        <button class="primary" onclick="location.reload()">Réessayer</button>
       </div>
     </div>
     <script src="dist/bug.js" defer></script>

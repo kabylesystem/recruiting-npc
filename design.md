@@ -40,3 +40,6 @@ Le jeu doit être examiné dans des captures servies, avec gros plans sur les ma
 - Google DeepMind : https://deepmind.google/ (Gemini, AlphaGo, AlphaFold, Genie). Éléments de fiction et clins d’œil ; le directeur reste réellement fourni par Codex/Claude ou le moteur local selon son indicateur.
 - Voodoo Publishing : https://voodoo.io/publishing (Mob Control et Paper.io, en plus de Helix Jump/Hole.io).
 - Grande enseigne commune, mur DeepMind bleu, mur Voodoo rouge, sorties nommées, pistes et clé Gemini, sculpture en ruban AlphaFold. Les répliques de chaque effet et du résultat font aussi référence à cet univers.
+
+## Priorité gameplay lisible — 25/09
+Deux retours de Kusaila signalent une incompréhension totale. La correction porte sur le jeu : clé en forme de clé, flèches au sol et repère projeté vers l’objectif, statut des portes, objectif persistant distinct des effets. Le chrono attend le premier mouvement. Accueil en trois étapes concrètes, commandes/effets en français, humour et références en second plan. Validation par parcours guidé réel et captures ; seul le retour humain valide la compréhension.

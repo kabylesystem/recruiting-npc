@@ -25,6 +25,7 @@ class BugGame {
     this.best = 0;
     this.previousOutcome = "none";
     this.keyCollected = false;
+    this.clockStarted = false;
     this.boost = 1;
     this.patchCount = 0;
     this.roundToken = 0;
@@ -178,7 +179,7 @@ class BugGame {
     }
     this.state = "intro";
     $("start").disabled = false;
-    $("start-label").textContent = "Break the game";
+    $("start-label").textContent = "Au volant";
     window.__bug = this; // Readable game state for QA, no hidden fake gameplay path.
   }
   bind() {
@@ -293,10 +294,10 @@ class BugGame {
     }
   }
   soundLabel() {
-    $("sound").textContent = this.audio.enabled ? "Sound on" : "Sound off";
+    $("sound").textContent = this.audio.enabled ? "Son activé" : "Son coupé";
     $("sound").setAttribute(
       "aria-label",
-      this.audio.enabled ? "Mute sound" : "Enable sound",
+      this.audio.enabled ? "Couper le son" : "Activer le son",
     );
   }
   resize() {
@@ -314,11 +315,11 @@ class BugGame {
         info.claudeAvailable
       );
       $("director-label").textContent = this.apiAvailable
-        ? "Director ready"
-        : "Local director";
+        ? "IA prête"
+        : "Adversaire local";
     } catch {
       this.apiAvailable = false;
-      $("director-label").textContent = "Local director";
+      $("director-label").textContent = "Adversaire local";
     }
   }
   resetCar() {
@@ -370,6 +371,7 @@ class BugGame {
     this.history = [];
     this.effects.clear();
     this.keyCollected = false;
+    this.clockStarted = false;
     this.boost = 1;
     this.collisions = 0;
     this.distance = 0;
@@ -390,20 +392,25 @@ class BugGame {
     for (const id of ["intro", "result", "pause", "patch"]) $(id).hidden = true;
     $("hud").hidden = false;
     document.body.classList.add("playing");
-    $("objective").textContent = "Steal the access key.";
-    $("objective-hint").textContent = "The white beacon. Then any exit.";
-    $("key-label").textContent = "○ Access key missing";
+    $("objective").textContent = "1. Ramasse la clé blanche";
+    $("objective-hint").textContent =
+      "Roule dessus. Elle ouvre les trois portes.";
+    $("key-label").textContent = "Clé à récupérer";
+    $("drive-prompt").hidden = false;
+    $("effect-status").textContent = "";
+    $("goal-marker").hidden = false;
     $("key-label").style.color = "";
     $("round-label").textContent =
-      `Attempt ${String(this.round).padStart(2, "0")}`;
-    $("share").textContent = "Copy my result";
+      `Essai ${String(this.round).padStart(2, "0")}`;
+    $("share").textContent = "Copier mon résultat";
     document
       .querySelectorAll("#patch-budget i")
       .forEach((el) => el.classList.remove("spent"));
-    this.toast("You stole the car. Now steal your way out.", 3.5);
-    this.audio.say("Background characters do not get an escape route.");
+    $("toast").classList.remove("visible");
     this.soundLabel();
-    this.requestDecision();
+    this.updateHud(0);
+    this.follow(1);
+    this.updateGuidance();
   }
   snapshot() {
     const b = this.car.collision;
@@ -442,15 +449,13 @@ class BugGame {
         this.patchDecision = value;
         this.directorSource = value.source;
         $("director-label").textContent =
-          value.source !== "local"
-            ? "AI director · watching"
-            : "Local director";
+          value.source !== "local" ? "L’IA t’observe" : "Adversaire local";
       }
     } catch {
       if (token === this.roundToken && this.pending === controller) {
         this.patchDecision = chooseLocalPatch(this.snapshot());
         this.directorSource = "local";
-        $("director-label").textContent = "Local director";
+        $("director-label").textContent = "Adversaire local";
       }
     } finally {
       clearTimeout(timeout);
@@ -481,15 +486,18 @@ class BugGame {
     this.configurePhysics();
     this.patchVisibleUntil = this.elapsed + Math.min(rule.duration, 9);
     $("patch").hidden = false;
-    $("patch-version").textContent = `Patch 0.0.${this.used.length + 1}`;
+    $("patch-version").textContent =
+      `Obstacle ${this.used.length}/2 · ${rule.duration} s`;
     $("patch-kind").textContent =
-      decision.source !== "local" ? "AI intervention" : "Local intervention";
+      decision.source !== "local"
+        ? "L’IA change une règle"
+        : "Le jeu change une règle";
     this.arena.message(rule.title);
     $("patch-title").textContent = rule.title;
     $("patch-taunt").textContent = decision.taunt;
     $("patch-exploit").textContent = rule.hint;
     $("director-label").textContent =
-      decision.source !== "local" ? "AI director · patching" : "Local director";
+      decision.source !== "local" ? "L’IA te bloque" : "Adversaire local";
     document
       .querySelectorAll("#patch-budget i")
       .forEach((el, i) => el.classList.toggle("spent", i < this.used.length));
@@ -547,6 +555,11 @@ class BugGame {
     }
   }
   recover() {
+    if (!this.clockStarted) {
+      this.clockStarted = true;
+      if ($("drive-prompt")) $("drive-prompt").hidden = true;
+      this.requestDecision();
+    }
     this.resetCar();
     const penalty = Math.min(3, this.left);
     this.elapsed += penalty;
@@ -555,7 +568,7 @@ class BugGame {
       this.finish(false);
       return;
     }
-    this.toast("Vehicle recovered. 3 seconds lost.", 2);
+    this.toast("Voiture remise sur roues. Pénalité : 3 secondes.", 2);
     this.flipTime = 0;
   }
   finish(win) {
@@ -576,18 +589,20 @@ class BugGame {
     $("result").hidden = false;
     $("hud").hidden = true;
     $("result-eyebrow").textContent = win
-      ? "Containment failed. You were the exception."
-      : "Containment successful. For now.";
-    $("result-title").textContent = win ? "UNPATCHABLE." : "BUG FIXED.";
+      ? "Clé récupérée. Sortie franchie."
+      : "Le temps est écoulé.";
+    $("result-title").textContent = win ? "ÉVADÉ !" : "TROP TARD.";
     this.arena.message(win ? "UNPATCHABLE." : "ONE MORE TRY.");
     $("result-title").style.color = win ? "var(--mint)" : "var(--red)";
     $("result-quote").textContent = win
       ? "“DeepMind solved Go. Voodoo solved retention. You found the exit.”"
       : this.keyCollected
         ? "Voodoo calls this retention. You call it one more try."
-        : "That white beacon is your way out. Grab it, then follow the green exits.";
+        : "Roule sur la clé blanche pour ouvrir les portes, puis passe une porte verte.";
     $("result-time").textContent = `${this.elapsed.toFixed(2)}s`;
-    $("result-time-label").textContent = win ? "Escape time" : "Time survived";
+    $("result-time-label").textContent = win
+      ? "Temps de fuite"
+      : "Temps écoulé";
     $("result-patches").textContent = `${this.used.length}/2`;
     $("result-best").textContent = this.best ? `${this.best.toFixed(2)}s` : "—";
     $("result-history").textContent = this.history.length
@@ -597,7 +612,7 @@ class BugGame {
               `${h.time.toFixed(1)}s · ${PATCHES[h.patch].title.replace(".", "")} (${h.source !== "local" ? "AI" : "local"})`,
           )
           .join("  /  ")
-      : "No patch could catch up with you.";
+      : "Sorti avant la première intervention.";
     if (win) this.audio.victory();
     else this.audio.tone(70, 0.5, 0.5, "triangle");
     this.audio.say(
@@ -622,6 +637,22 @@ class BugGame {
       }
       this.audio.update(0, false, false);
       return;
+    }
+    if (!this.clockStarted) {
+      if (this.keys.has("KeyW") || this.keys.has("KeyS")) {
+        this.clockStarted = true;
+        $("drive-prompt").hidden = true;
+        this.requestDecision();
+      } else {
+        this.car.update(dt);
+        this.physics.step(1 / 60, dt, 3);
+        this.appearance?.update();
+        this.arena.update(dt, this.since);
+        this.follow(dt);
+        this.updateHud(0);
+        this.updateGuidance();
+        return;
+      }
     }
     this.elapsed += dt;
     this.left = Math.max(0, this.left - dt);
@@ -665,11 +696,12 @@ class BugGame {
     ) {
       this.keyCollected = true;
       this.arena.unlock();
-      $("objective").textContent = "Get out. Any way you can.";
-      $("objective-hint").textContent = "Three exits. Make your own route.";
-      $("key-label").textContent = "● Access key stolen";
+      $("objective").textContent = "2. Passe une porte verte";
+      $("objective-hint").textContent =
+        "Les portes sont ouvertes. Traverse-en une pour gagner.";
+      $("key-label").textContent = "Clé récupérée";
       $("key-label").style.color = "var(--mint)";
-      this.toast("Access stolen. All exits unlocked.", 3);
+      this.toast("Clé récupérée ! Passe une porte verte pour gagner.", 3);
       this.audio.pickup();
     }
     if (this.keyCollected && b.position.z > 45 && Math.abs(b.position.x) < 37) {
@@ -695,8 +727,8 @@ class BugGame {
     if (this.flipTime > 1.8)
       this.toast(
         matchMedia("(pointer: coarse)").matches
-          ? "Upside down? Tap recover. −3s"
-          : "Upside down? Press F to recover. −3s",
+          ? "Sur le toit ? Touche Redresser. −3 s"
+          : "Sur le toit ? Appuie sur F. −3 s",
         0.5,
       );
     // A live decision is prefetched, with a bounded wait. Network never pauses driving.
@@ -722,7 +754,7 @@ class BugGame {
         this.effects.delete(id);
         if (id === "barricade") this.arena.clearPatches();
         this.configurePhysics();
-        this.toast("Patch expired. Use the opening.", 2);
+        this.toast("Effet terminé. Les commandes sont revenues.", 2);
       }
     }
     const shownId = this.used[this.used.length - 1];
@@ -735,32 +767,101 @@ class BugGame {
     if (this.elapsed > this.toastUntil) $("toast").classList.remove("visible");
     if (this.used.length >= 2)
       $("director-label").textContent =
-        `${this.directorSource !== "local" ? "AI" : "Local"} director · out of patches`;
+        "Plus de nouvelles règles. Fonce vers la sortie.";
     this.audio.update(speed, throttle || boost, true);
     this.updateHud(speed);
     this.follow(dt);
+    this.updateGuidance();
+  }
+  updateGuidance() {
+    const target = this.arena.guide(
+      this.car.collision.position,
+      this.keyCollected,
+    );
+    this.currentGoal = target;
+    const point = new THREE.Vector3(target.x, target.y, target.z);
+    this.camera.updateMatrixWorld(true);
+    const behind = this.camera.worldToLocal(point.clone()).z > 0;
+    const projected = point.project(this.camera);
+    const marginX = Math.min(120, innerWidth * 0.28);
+    const minY = innerHeight < 560 ? 165 : 205;
+    const maxY = Math.max(minY, innerHeight - (innerWidth < 600 ? 280 : 200));
+    const rawX = ((projected.x + 1) * innerWidth) / 2;
+    const rawY = ((1 - projected.y) * innerHeight) / 2;
+    const marker = $("goal-marker");
+    marker.classList.toggle("exit-goal", this.keyCollected);
+    marker.dataset.offscreen = String(behind || Math.abs(projected.x) > 1);
+    $("goal-label").textContent = behind
+      ? "Fais demi-tour"
+      : this.keyCollected
+        ? "Passe cette porte"
+        : "Roule sur la clé";
+    $("goal-distance").textContent =
+      `${Math.round(target.distance)} m${behind ? (this.keyCollected ? " · sortie derrière toi" : " · clé derrière toi") : ""}`;
+    const desiredX = clamp(
+      behind ? innerWidth - rawX : rawX,
+      marginX,
+      innerWidth - marginX,
+    );
+    const desiredY = clamp(behind ? maxY : rawY, minY, maxY);
+    const { width, height } = marker.getBoundingClientRect();
+    const panels = [
+      ...document.querySelectorAll(".objective, #effect-status, #patch"),
+    ]
+      .filter((panel) => !panel.hidden)
+      .map((panel) => panel.getBoundingClientRect());
+    const xs = [
+      desiredX,
+      ...panels.flatMap((r) => [
+        r.left - width / 2 - 12,
+        r.right + width / 2 + 12,
+      ]),
+    ];
+    const ys = [desiredY, ...panels.map((r) => r.bottom + height + 12)];
+    let best = null;
+    for (const x of xs)
+      for (const y of ys) {
+        if (
+          x < width / 2 + 12 ||
+          x > innerWidth - width / 2 - 12 ||
+          y < minY ||
+          y > maxY
+        )
+          continue;
+        if (
+          panels.some(
+            (r) =>
+              x + width / 2 + 8 > r.left &&
+              x - width / 2 - 8 < r.right &&
+              y + 8 > r.top &&
+              y - height - 8 < r.bottom,
+          )
+        )
+          continue;
+        const distance = Math.hypot(x - desiredX, y - desiredY);
+        if (!best || distance < best.distance) best = { x, y, distance };
+      }
+    marker.style.left = `${best ? best.x : desiredX}px`;
+    marker.style.top = `${best ? best.y : desiredY}px`;
   }
   updateHud(speed) {
-    $("objective-hint").textContent = this.effects.size
-      ? [...this.effects]
-          .map(
-            ([id, end]) =>
-              `${PATCHES[id].label} · ${Math.ceil(end - this.elapsed)}s`,
-          )
-          .join(" / ")
-      : this.keyCollected
-        ? "Three exits. Make your own route."
-        : "The white beacon. Then any exit.";
+    $("effect-status").hidden = this.effects.size === 0;
+    $("effect-status").textContent = [...this.effects]
+      .map(
+        ([id, end]) =>
+          `${PATCHES[id].label} · ${Math.max(0, Math.ceil(end - this.elapsed))} s`,
+      )
+      .join(" / ");
     $("time").textContent = this.left.toFixed(2).padStart(5, "0");
     $("time-fill").style.width = `${(this.left / 60) * 100}%`;
     document.querySelector(".timer").classList.toggle("urgent", this.left < 10);
     $("speed").textContent = String(Math.round(speed * 3.6));
     $("boost-fill").style.width = `${this.boost * 100}%`;
     $("boost-label").textContent = this.effects.has("boost")
-      ? "Overdrive locked"
+      ? "Accélération forcée"
       : this.boost > 0.95
-        ? "Boost ready"
-        : "Boost recharging";
+        ? "Boost prêt"
+        : "Boost en recharge";
     this.drawMap();
   }
   drawMap() {
