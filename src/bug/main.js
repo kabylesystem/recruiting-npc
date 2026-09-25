@@ -48,7 +48,7 @@ class BugGame {
     } catch {}
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x111b23);
-    this.scene.fog = new THREE.FogExp2(0x18232b, 0.011);
+    this.scene.fog = new THREE.FogExp2(0x18232b, 0.0075);
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       powerPreference: "high-performance",
@@ -74,12 +74,13 @@ class BugGame {
     const sun = new THREE.DirectionalLight(0xcce6ff, 1.8);
     sun.position.set(-25, 46, -20);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
+    const shadowSize = matchMedia("(pointer: coarse)").matches ? 1024 : 2048;
+    sun.shadow.mapSize.set(shadowSize, shadowSize);
     Object.assign(sun.shadow.camera, {
-      left: -60,
-      right: 60,
-      top: 65,
-      bottom: -65,
+      left: -39,
+      right: 39,
+      top: 47,
+      bottom: -47,
       near: 1,
       far: 130,
     });
@@ -192,6 +193,10 @@ class BugGame {
     $("pause-retry").onclick = () => this.start();
     $("resume").onclick = () => this.pause(false);
     $("pause-touch").onclick = () => this.pause(true);
+    if ($("recover-touch"))
+      $("recover-touch").onclick = () => {
+        if (this.state === "playing") this.recover();
+      };
     $("sound").onclick = async () => {
       if (this.audio.enabled) this.audio.mute();
       else await this.audio.enable();
@@ -246,6 +251,7 @@ class BugGame {
         return;
       }
       if (e.code === "Enter" && ["intro", "result"].includes(this.state)) {
+        e.preventDefault();
         this.audio
           .enable()
           .then(() => this.soundLabel())
@@ -331,6 +337,16 @@ class BugGame {
     b.wakeUp();
     this.car.resetControls();
     this.car.setBrake(0);
+    const steering = this.car.steeringSimulator;
+    steering.position =
+      steering.velocity =
+      steering.target =
+      steering.offset =
+        0;
+    for (const frame of steering.cache) frame.position = frame.velocity = 0;
+    this.car.setSteeringValue(0);
+    this.car.airSpinTimer = 0;
+    this.car.canTiltForwards = false;
     this.car.gear = 1;
     this.car.shiftTimer = 0;
     this.car.update(0);
@@ -420,7 +436,9 @@ class BugGame {
       });
       if (!r.ok) throw Error("Director unavailable");
       const value = await r.json();
-      if (token === this.roundToken && validDecision(value, this.used)) {
+      if (token === this.roundToken && this.pending === controller) {
+        if (!validDecision(value, this.used))
+          throw Error("Invalid director decision");
         this.patchDecision = value;
         this.directorSource = value.source;
         $("director-label").textContent =
@@ -429,14 +447,15 @@ class BugGame {
             : "Local director";
       }
     } catch {
-      if (token === this.roundToken) {
+      if (token === this.roundToken && this.pending === controller) {
         this.patchDecision = chooseLocalPatch(this.snapshot());
         this.directorSource = "local";
         $("director-label").textContent = "Local director";
       }
     } finally {
       clearTimeout(timeout);
-      if (token === this.roundToken) this.pending = null;
+      if (token === this.roundToken && this.pending === controller)
+        this.pending = null;
     }
   }
   applyPatch(decision) {
@@ -465,6 +484,7 @@ class BugGame {
     $("patch-version").textContent = `Patch 0.0.${this.used.length + 1}`;
     $("patch-kind").textContent =
       decision.source !== "local" ? "AI intervention" : "Local intervention";
+    this.arena.message(rule.title);
     $("patch-title").textContent = rule.title;
     $("patch-taunt").textContent = decision.taunt;
     $("patch-exploit").textContent = rule.hint;
@@ -528,7 +548,13 @@ class BugGame {
   }
   recover() {
     this.resetCar();
-    this.left = Math.max(0, this.left - 3);
+    const penalty = Math.min(3, this.left);
+    this.elapsed += penalty;
+    this.left = Math.max(0, this.left - penalty);
+    if (this.left === 0) {
+      this.finish(false);
+      return;
+    }
     this.toast("Vehicle recovered. 3 seconds lost.", 2);
     this.flipTime = 0;
   }
@@ -553,6 +579,7 @@ class BugGame {
       ? "Containment failed. You were the exception."
       : "Containment successful. For now.";
     $("result-title").textContent = win ? "UNPATCHABLE." : "BUG FIXED.";
+    this.arena.message(win ? "UNPATCHABLE." : "ONE MORE TRY.");
     $("result-title").style.color = win ? "var(--mint)" : "var(--red)";
     $("result-quote").textContent = win
       ? "“This was not in the acceptance criteria.”"
@@ -657,14 +684,21 @@ class BugGame {
       b.position.y < -8 ||
       Math.abs(b.position.x) > 100 ||
       Math.abs(b.position.z) > 100
-    )
+    ) {
       this.recover();
+      if (this.state !== "playing") return;
+    }
     const up = new CANNON.Vec3();
     b.quaternion.vmult(new CANNON.Vec3(0, 1, 0), up);
     if (up.y < 0.25) this.flipTime += dt;
     else this.flipTime = 0;
     if (this.flipTime > 1.8)
-      this.toast("Upside down? Press F to recover. −3s", 0.5);
+      this.toast(
+        matchMedia("(pointer: coarse)").matches
+          ? "Upside down? Tap recover. −3s"
+          : "Upside down? Press F to recover. −3s",
+        0.5,
+      );
     // A live decision is prefetched, with a bounded wait. Network never pauses driving.
     const nextAt = this.used.length === 0 ? 6 : this.firstPatchAt + 7;
     if (this.used.length < 2 && this.elapsed >= nextAt) {

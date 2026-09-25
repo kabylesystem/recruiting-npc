@@ -842,3 +842,74 @@ body.playing #sound {
   font-size: 14px;
   text-underline-offset: 4px;
 }
+
+/* Recovery is a real driving action, accessible without a hardware keyboard. */
+#recover-touch {
+  display: none;
+  position: absolute;
+  pointer-events: auto;
+  right: 36px;
+  bottom: 235px;
+  min-height: 44px;
+}
+@media (pointer: coarse) {
+  #recover-touch {
+    display: block;
+  }
+}
+@media (max-width: 600px) {
+  #recover-touch {
+    right: 22px;
+    bottom: 250px;
+    font-size: 13px;
+  }
+}
+@media (max-height: 560px) {
+  #recover-touch {
+    right: 22px;
+    bottom: 85px;
+  }
+  .speed {
+    display: none;
+  }
+}
+
+@media (max-height: 560px) {
+  #patch {
+    top: 112px;
+    width: 300px;
+  }
+  .patch-top {
+    display: none;
+  }
+  #patch h2 {
+    font-size: 23px;
+    line-height: 1;
+    margin: 12px 16px 8px;
+  }
+  #patch p {
+    font-size: 14px;
+    margin: 0 16px 8px;
+  }
+  .patch-exploit {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+  #recover-touch {
+    right: 335px;
+    bottom: 24px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 360px) {
+  h1 {
+    font-size: 86px;
+  }
+  .intro-line {
+    font-size: 14px;
+  }
+  .screen {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

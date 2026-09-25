@@ -27,3 +27,11 @@ Conduite/roues/collisions : Car et Cannon de Sketchbook ; rendu : Three.js exist
 
 ## Monétisation
 Aucune dans cette démo de hackathon.
+
+## Revue demandée le 25/09 — finition et références Voodoo
+Le jeu doit être examiné dans des captures servies, avec gros plans sur les matériaux et le véhicule. Un build qui passe ne valide pas sa qualité visuelle. Kusaila veut une direction audacieuse et des clins d’œil à Voodoo intégrés au décor.
+
+- Voodoo (https://voodoo.io/), Helix Jump (https://games.voodoo.io/helixjump/) et Hole.io (https://voodoo.io/hole) : sculpture hélicoïdale, ouverture noire scellée, panneau original « VOODOO / ONE MORE TRY. / ESCAPE THE RETENTION DEPARTMENT ». Hommage indépendant, pas une identité officielle.
+- Asphalte et béton photographiés Poly Haven, CC0, textures locales 1K avec couleur, normales et rugosité. Échelle UV en mètres, anisotropie 8, matériaux distincts.
+- Bordures rouges/ivoire, traces de pneus, portes techniques, enseignes monumentales. Conserver les lignes de conduite dégagées.
+- Carrosserie graphite satinée : couleurs converties sRGB vers linéaire, pneus mats, feux rouges. Corps/vitres/jantes conservés à pleine précision ; ombre portée conservée, réception d’ombres désactivée sur la voiture pour éliminer les artefacts de la shadow map du moteur historique. Brouillard réduit pour distinguer les installations au fond.

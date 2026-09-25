@@ -21,7 +21,7 @@ The original Sketchbook scene is available at `/game/sketchbook.html`.
 - WASD physical keys (ZQSD on AZERTY), or arrow keys: drive.
 - Space: handbrake / drift.
 - Shift: rechargeable boost.
-- F: recover an overturned vehicle, at a cost of three seconds.
+- F (or touch “Flip car”): recover an overturned vehicle; the three-second penalty is included in the final score.
 - R: immediately restart. Escape: pause.
 - Touch controls are available on phones. Landscape gives a wider view.
 
@@ -58,13 +58,20 @@ Two requests maximum per attempt, one model call at a time, 18-second deadline, 
 
 ```sh
 npm run test:bug
+node --test tests/unit/game-state.cjs
+node tests/browser/state-check.cjs
 node tests/browser/drive-check.cjs
 node tests/browser/gameplay-check.cjs
+node tests/browser/visual-review.cjs # desktop/mobile and material close-ups
 ```
 
-Browser tests use isolated headless Chromium. Set `CHROMIUM_PATH` if Chromium is installed elsewhere. Screenshots are written under ignored `artifacts/`. `drive-check` uses keyboard events and the real game/physics loop to collect the key and escape around a patch. It accelerates simulation steps for reproducibility; it is not a measured human play session. `gameplay-check` verifies patch effects/expiry/reset, timeout/retry, pause, audio signal/mute and touch controls.
+Browser tests use isolated headless Chromium. Set `CHROMIUM_PATH` if Chromium is installed elsewhere. Screenshots are written under ignored `artifacts/`. `drive-check` uses keyboard events and the real game/physics loop to collect the key and escape around a patch. It accelerates simulation steps for reproducibility; it is not a measured human play session. `gameplay-check` verifies patch effects/expiry/reset, timeout/retry, pause, audio signal/mute and touch controls. `state-check` reproduces focused Enter handling, steering reset, recovery scoring and paused controls; the unit tests exercise stale/invalid director responses.
 
 The car's runtime geometry is reduced with Blender (`blender --background --python tools/optimize-car.py`). Source asset and attribution are preserved.
+
+## Arena design
+
+A nocturnal test facility with photographed asphalt/concrete, metric texture scale, red/ivory curbs and original Voodoo tributes: Helix-inspired sculpture, sealed Hole.io aperture and a “ONE MORE TRY” retention-department billboard. References are part of an independent hackathon demo. Credits are available from the start screen.
 
 ## Credits
 

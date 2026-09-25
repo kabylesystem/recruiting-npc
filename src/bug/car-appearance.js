@@ -89,45 +89,69 @@ export async function attachCarAppearance(car, scene) {
       ownEnvironment.needsUpdate = true;
       return ownEnvironment;
     })();
+  // r113 expects linear material colors. Feeding display-space hex values
+  // directly into the shader made the original graphite paint look chrome-white.
+  const paintColor = (hex) => new THREE.Color(hex).convertSRGBToLinear();
   const bodyMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x78858e,
-    metalness: 0.76,
-    roughness: 0.24,
-    clearcoat: 1,
-    clearcoatRoughness: 0.17,
-    envMap: environment,
-    envMapIntensity: 0.9,
+    color: paintColor(0x39454d),
+    metalness: 0.12,
+    roughness: 0.55,
+    clearcoat: 0.15,
+    clearcoatRoughness: 0.4,
   });
   const rimMaterial = new THREE.MeshStandardMaterial({
-    color: 0x727c83,
-    metalness: 0.85,
-    roughness: 0.27,
+    color: paintColor(0x727c83),
+    metalness: 0.7,
+    roughness: 0.4,
     envMap: environment,
+    envMapIntensity: 0.65,
   });
   const glassMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x101921,
-    metalness: 0.3,
-    roughness: 0.11,
+    color: paintColor(0x182c35),
+    metalness: 0.05,
+    roughness: 0.12,
     clearcoat: 1,
     envMap: environment,
+    envMapIntensity: 0.55,
     transparent: true,
-    opacity: 0.88,
+    opacity: 0.8,
+    depthWrite: false,
   });
   const tireMaterial = new THREE.MeshStandardMaterial({
-    color: 0x0b0c0e,
+    color: paintColor(0x181b1e),
     metalness: 0,
-    roughness: 0.92,
+    roughness: 0.96,
   });
   const trimMaterial = new THREE.MeshStandardMaterial({
-    color: 0x15191d,
-    metalness: 0.45,
-    roughness: 0.35,
+    color: paintColor(0x20262a),
+    metalness: 0.12,
+    roughness: 0.66,
     envMap: environment,
+    envMapIntensity: 0.3,
   });
   const redMaterial = new THREE.MeshStandardMaterial({
-    color: 0x541311,
-    metalness: 0.35,
-    roughness: 0.36,
+    color: paintColor(0xd32c36),
+    metalness: 0.25,
+    roughness: 0.42,
+  });
+  const seatMaterial = new THREE.MeshStandardMaterial({
+    color: paintColor(0x6c232b),
+    metalness: 0,
+    roughness: 0.82,
+  });
+  const tailMaterial = new THREE.MeshStandardMaterial({
+    color: paintColor(0xea263a),
+    emissive: paintColor(0xff1835),
+    emissiveIntensity: 0.35,
+    metalness: 0.05,
+    roughness: 0.22,
+  });
+  const headlightMaterial = new THREE.MeshStandardMaterial({
+    color: paintColor(0xd5eee9),
+    emissive: paintColor(0xc5eee7),
+    emissiveIntensity: 0.7,
+    metalness: 0.1,
+    roughness: 0.2,
   });
   const originalMaterials = new Set();
   model.traverse((object) => {
@@ -137,24 +161,37 @@ export async function attachCarAppearance(car, scene) {
       : [object.material]
     ).forEach((material) => originalMaterials.add(material));
     object.castShadow = true;
-    object.receiveShadow = true;
+    // The arena's wide shadow map produces self-shadow acne on thin panels.
+    // Keep the silhouette shadow on the floor; shade the car with direct lights.
+    object.receiveShadow = false;
     const name = object.name.toLowerCase();
     if (name === "body") object.material = bodyMaterial;
     else if (name === "glass") object.material = glassMaterial;
+    else if (name === "lights_red" || name === "brakes" || name === "leds")
+      object.material = tailMaterial;
+    else if (name === "lights") object.material = headlightMaterial;
     else if (name.startsWith("rim_") || name === "chrome" || name === "metal")
       object.material = rimMaterial;
     else if (name.includes("tire")) object.material = tireMaterial;
+    else if (name.includes("brake") || name.startsWith("centre"))
+      object.material = redMaterial;
+    else if (name === "interior_dark" || name === "trim")
+      object.material = seatMaterial;
     else if (
       name.includes("yellow") ||
       name.includes("plastic") ||
       name.includes("carbon") ||
-      name === "trim" ||
+      name.includes("interior") ||
+      name.includes("leather") ||
+      name.includes("carpet") ||
+      name.startsWith("steering") ||
+      name === "wipers" ||
       name === "grills"
     )
       object.material = trimMaterial;
-    else if (name.includes("brake")) object.material = redMaterial;
     else if (object.material && !Array.isArray(object.material)) {
       object.material.envMap = environment;
+      object.material.envMapIntensity = 0.5;
       object.material.needsUpdate = true;
     }
   });
@@ -232,6 +269,9 @@ export async function attachCarAppearance(car, scene) {
         tireMaterial,
         trimMaterial,
         redMaterial,
+        seatMaterial,
+        tailMaterial,
+        headlightMaterial,
       ]).forEach((material) => material.dispose());
       if (ownEnvironment) ownEnvironment.dispose();
     },
