@@ -84,7 +84,7 @@ test("superseded aborted request cannot populate a second patch", async () => {
   const work = g.requestDecision();
   g.pending.abort();
   g.pending = null; // Same-round simulation deadline has already applied a fallback.
-  g.used.push("barricade");
+  g.used.push("rubber");
   reject(new Error("aborted"));
   await work;
   assert.equal(g.patchDecision, null);

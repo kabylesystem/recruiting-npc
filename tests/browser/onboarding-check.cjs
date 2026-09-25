@@ -46,8 +46,8 @@ const assert = require("node:assert/strict");
       calls++;
       return r.fulfill({
         json: {
-          patch: calls === 1 ? "barricade" : "mirror",
-          taunt: "AlphaGo saw this move coming. Try the other exit.",
+          patch: calls === 1 ? "rubber" : "mirror",
+          taunt: "AlphaFold called. Your car is not a protein. Stop folding it.",
           source: "local",
         },
       });

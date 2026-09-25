@@ -17,7 +17,7 @@ const executablePath =
   await page.route("**/api/director", (route) =>
     route.fulfill({
       json: {
-        patch: "barricade",
+        patch: "rubber",
         taunt: "Your escape has been deprecated.",
         source: "local",
       },
@@ -30,14 +30,7 @@ const executablePath =
   const effects = await page.evaluate(() => {
     const g = __bug,
       report = {};
-    for (const id of [
-      "barricade",
-      "gravity",
-      "rubber",
-      "ice",
-      "boost",
-      "mirror",
-    ]) {
+    for (const id of ["gravity", "rubber", "ice", "boost", "mirror"]) {
       g.start();
       g.keys.add("KeyW");
       g.tick(1 / 60);
@@ -82,7 +75,7 @@ const executablePath =
     assert.equal(v.resetGravity, -9.81);
     assert.equal(v.resetFriction, 1.8);
   }
-  assert.equal(effects.barricade.barriers, 1);
+  for (const effect of Object.values(effects)) assert.equal(effect.barriers, 0);
   assert.equal(effects.gravity.gravity, -21);
   assert.equal(effects.rubber.restitution, 1.05);
   assert.equal(effects.ice.friction, 0.24);

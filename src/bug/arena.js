@@ -138,18 +138,6 @@ export class Arena {
     }
     this.buildShowground();
     this.sign("06", -33.9, 5, -20, 5, 4, "#ff4338", Math.PI / 2);
-    // Pushable cargo teaches that the environment is physical.
-    for (let i = 0; i < 6; i++) {
-      const thing = this.box(
-        [1.5, 1.5, 1.5],
-        [-21 + (i % 3) * 1.7, 0.8, 14 + Math.floor(i / 3) * 1.8],
-        this.red,
-        true,
-        0,
-        12,
-      );
-      this.dynamic.push({ ...thing, initial: thing.body.position.clone() });
-    }
     this.key = new THREE.Group();
     const keyModel = new THREE.Group();
     const keyMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
@@ -678,17 +666,6 @@ export class Arena {
       d.body.quaternion.set(0, 0, 0, 1);
       d.body.wakeUp();
     }
-  }
-  barricade(x, z) {
-    const lane = Math.max(-23, Math.min(23, x));
-    const depth = Math.max(7, Math.min(32, z + 13));
-    const b = this.box([10, 2.8, 0.8], [lane, 1.4, depth], this.red, true);
-    b.body.userData = { patch: true };
-    this.temporary.push(b);
-    const edge = this.box([10, 0.08, 0.86], [lane, 2.85, depth], this.light);
-    this.temporary.push(edge);
-    this.burst(new THREE.Vector3(lane, 2, depth), 18);
-    return b;
   }
   clearPatches() {
     for (const p of this.temporary) {

@@ -52,3 +52,9 @@ The first visual pass exposed destination labels overlapping the HUD. Placement 
 Final checks for this update: build succeeds, all 7 state unit tests pass, and state-check, gameplay-check and onboarding-check finish successfully with no page errors. The guided run in the final check took 11.4 simulation seconds. Screenshots and logs remain under ignored artifacts/.
 
 The audio assertion initially sampled silence: the idle start now silences the engine, and slow software WebGL can delay sampling past the short test tone. The test suspends drawing only during its 100 ms audio sample and restores rendering in finally; the actual audio graph/tone/mute code is unchanged. The rerun measures a nonzero signal.
+
+## 26 September: remove confusing walls and redundant intro copy
+
+User feedback overrides the earlier barricade mechanic: red walls appearing on the exit route contradict the green destination guidance. Removed barricade from both client and server patch catalogs, director prompt, local selection and scene spawning; five driving modifiers remain. Also removed the six loose red cargo blocks from the route. Historical tests above describe the older six-patch version.
+
+Removed the intro dedication and explanatory AI paragraph identified as distracting. Desktop and mobile intro renders inspected after removal. Build, 8 server tests and 7 game-state tests pass. The onboarding and gameplay browser suites both pass against the five-modifier version: guided key-to-exit run wins at 10.48 simulation seconds, every remaining effect spawns zero barrier bodies, effect expiry/reset and touch controls pass, no page errors.

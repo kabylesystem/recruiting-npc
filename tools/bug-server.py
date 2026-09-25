@@ -27,13 +27,12 @@ from urllib.parse import unquote, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PATCHES = ("barricade", "gravity", "rubber", "ice", "boost", "mirror")
+PATCHES = ("gravity", "rubber", "ice", "boost", "mirror")
 MAX_BODY = 4096
 SYSTEM_PROMPT = """You are the malicious but funny developer of YOU ARE THE BUG,
 a 3D game in which a rogue NPC drives toward an exit. You can apply exactly one
 bounded patch per request; maximum two per match. Choose a patch NOT in used.
-Available patches: barricade = barrier on route (can jump around it);
-gravity = heavy gravity (limits jumping, improves traction);
+Available patches: gravity = heavy gravity (limits jumping, improves traction);
 rubber = bouncy collisions (can bounce over barriers); ice = slippery road;
 boost = car permanently accelerates faster (hard to steer but useful for escape);
 mirror = invert left/right steering temporarily.
@@ -119,14 +118,13 @@ def local_director(snapshot, reason="offline"):
     if snapshot["collisions"] > 1:
         preferred.append("rubber")
     if snapshot["speed"] > 14:
-        preferred.extend(("barricade", "ice"))
+        preferred.extend(("ice", "gravity"))
     if snapshot["previousOutcome"] in ("win", "won", "escaped"):
         preferred.append("mirror")
     offset = (snapshot["round"] - 1) % len(PATCHES)
     preferred.extend(PATCHES[offset:] + PATCHES[:offset])
     patch = next(p for p in preferred if p not in snapshot["used"])
     lines = {
-        "barricade": "AlphaGo saw this move coming. Try the other exit.",
         "gravity": "Helix Jump taught you to fall. DeepMind is testing the landing.",
         "rubber": "AlphaFold called. Your car is not a protein. Stop folding it.",
         "ice": "Gemini imagined a skating rink. You brought a Ferrari.",

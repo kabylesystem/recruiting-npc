@@ -478,11 +478,6 @@ class BugGame {
       source: decision.source,
       time: this.elapsed,
     });
-    if (id === "barricade")
-      this.arena.barricade(
-        this.car.collision.position.x,
-        this.car.collision.position.z,
-      );
     this.configurePhysics();
     this.patchVisibleUntil = this.elapsed + Math.min(rule.duration, 9);
     $("patch").hidden = false;
@@ -752,7 +747,6 @@ class BugGame {
     for (const [id, until] of this.effects) {
       if (this.elapsed >= until) {
         this.effects.delete(id);
-        if (id === "barricade") this.arena.clearPatches();
         this.configurePhysics();
         this.toast("Effet terminé. Les commandes sont revenues.", 2);
       }

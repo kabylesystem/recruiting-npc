@@ -19,8 +19,8 @@ const fs = require("fs");
   await p.route("**/api/director", (r) =>
     r.fulfill({
       json: {
-        patch: "barricade",
-        taunt: "AlphaGo saw this move coming. Try the other exit.",
+        patch: "rubber",
+        taunt: "AlphaFold called. Your car is not a protein. Stop folding it.",
         source: "local",
       },
     }),

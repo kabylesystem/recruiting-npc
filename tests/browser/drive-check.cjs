@@ -18,7 +18,7 @@ const assert = require("node:assert/strict");
     requests++;
     return route.fulfill({
       json: {
-        patch: requests === 1 ? "barricade" : "gravity",
+        patch: requests === 1 ? "rubber" : "gravity",
         taunt: "Your escape has been deprecated.",
         source: "local",
       },
@@ -108,5 +108,5 @@ const assert = require("node:assert/strict");
   assert.equal(final.state, "result");
   assert.equal(final.outcome, "win");
   assert.equal(final.key, true);
-  assert.deepEqual(final.history.map((entry) => entry.patch), ["barricade", "gravity"]);
+  assert.deepEqual(final.history.map((entry) => entry.patch), ["rubber", "gravity"]);
 })();

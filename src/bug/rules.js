@@ -1,11 +1,4 @@
 export const PATCHES = {
-  barricade: {
-    label: "Mur devant toi",
-    title: "UN MUR BLOQUE LA ROUTE",
-    taunt: "AlphaGo saw this move coming. Try the other exit.",
-    hint: "Tourne pour contourner le mur. Les autres portes restent accessibles.",
-    duration: 16,
-  },
   gravity: {
     label: "Voiture alourdie",
     title: "LA VOITURE EST PLUS LOURDE",
@@ -51,10 +44,10 @@ export function chooseLocalPatch(state) {
     : state.collisions > 1
       ? ["rubber", "boost"]
       : state.speed > 45
-        ? ["barricade", "ice"]
+        ? ["ice", "gravity"]
         : state.used.length
           ? ["boost", "mirror", "rubber"]
-          : ["barricade", "mirror"];
+          : ["ice", "mirror"];
   const id =
     priorities.find((id) => available.includes(id)) || available[0] || "rubber";
   return { patch: id, taunt: PATCHES[id].taunt, source: "local" };

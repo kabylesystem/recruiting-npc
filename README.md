@@ -27,13 +27,12 @@ The original Sketchbook scene is available at `/game/sketchbook.html`.
 
 ## Rules
 
-You start in the getaway car. Collect the white access key, then cross the perimeter through any of three exits before the 60-second simulation timer runs out. The director gets at most two interventions per attempt. Patches expire; every route is not sealed at once.
+You start in the getaway car. Collect the white access key, then cross the perimeter through any of three exits before the 60-second simulation timer runs out. The director gets at most two interventions per attempt. Patches expire. Open exits remain physically clear: the director cannot spawn walls, and the loose red cargo has been removed.
 
 The timer and director wait for the first forward/reverse input. Ground arrows and a distance marker lead to a recognizable white key, then to an open green gate. French instructions keep the current objective visible separately from active effects; each rule explains its consequence and the relevant controls. Recovery also starts the timer and charges its usual penalty.
 
 | Patch | Actual effect | Opportunity |
 | --- | --- | --- |
-| Barricade | Physical wall ahead of the car | Drive around it, use another exit |
 | Gravity | Gravity changes from −9.81 to −21 | More traction; boost onto the ramp |
 | Rubber | Restitution rises; hard static impacts launch the car | Turn a collision into a jump |
 | Ice | Tire grip is reduced | Coast, brake early, drift |
@@ -68,7 +67,7 @@ node tests/browser/onboarding-check.cjs # idle start, guided escape and mobile s
 node tests/browser/visual-review.cjs # desktop/mobile and material close-ups
 ```
 
-Browser tests use isolated headless Chromium. Set `CHROMIUM_PATH` if Chromium is installed elsewhere. Screenshots are written under ignored `artifacts/`. `drive-check` uses keyboard events and the real game/physics loop to collect the key and escape around a patch. It accelerates simulation steps for reproducibility; it is not a measured human play session. `gameplay-check` verifies patch effects/expiry/reset, timeout/retry, pause, audio signal/mute and touch controls. `state-check` reproduces focused Enter handling, steering reset, recovery scoring and paused controls; the unit tests exercise stale/invalid director responses.
+Browser tests use isolated headless Chromium. Set `CHROMIUM_PATH` if Chromium is installed elsewhere. Screenshots are written under ignored `artifacts/`. `drive-check` uses keyboard events and the real game/physics loop to collect the key and escape during a patch. It accelerates simulation steps for reproducibility; it is not a measured human play session. `gameplay-check` verifies patch effects/expiry/reset, timeout/retry, pause, audio signal/mute and touch controls. `state-check` reproduces focused Enter handling, steering reset, recovery scoring and paused controls; the unit tests exercise stale/invalid director responses.
 
 The car's runtime geometry is reduced with Blender (`blender --background --python tools/optimize-car.py`). Source asset and attribution are preserved.
 
@@ -82,4 +81,4 @@ A nocturnal test facility with photographed asphalt/concrete, metric texture sca
 
 ## Prototype limits
 
-One handcrafted arena, one controllable vehicle, six bounded modifiers. No open world, live code generation, multiplayer or character-on-foot phase. The borrowed 2020 physics engine remains in use. Automated play and smoke tests establish functionality; challenge, replay value and performance on target hardware still benefit from human playtesting.
+One handcrafted arena, one controllable vehicle, five bounded modifiers. No open world, live code generation, multiplayer or character-on-foot phase. The borrowed 2020 physics engine remains in use. Automated play and smoke tests establish functionality; challenge, replay value and performance on target hardware still benefit from human playtesting.
