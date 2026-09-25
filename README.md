@@ -1,98 +1,75 @@
-<p align="center">
-	<a href="https://jblaha.art/sketchbook/latest"><img src="./src/img/thumbnail.png"></a>
-	<br>
-	<a href="https://jblaha.art/sketchbook/latest">Live demo</a>
-	<br>
-</p>
+# YOU ARE THE BUG
 
-# Final update (20. Feb 2023)
+A driving escape game. Steal the access key, find an exit, and outplay a director that changes the rules while you drive.
 
-As I have no more interest in developing this project, it comes to a conclusion. In order to remain honest about the true state of the project, I am archiving this repository.
+Built on [Sketchbook](https://github.com/swift502/Sketchbook) by swift502. Original MIT license and vehicle physics retained.
 
-- If you wish to modify Sketchbook feel free to fork it.
-- To see if someone is currently maintaining a fork, check out the [Network Graph](https://github.com/swift502/Sketchbook/network).
+## Play locally
 
-# 📒 Sketchbook
-
-Simple web based game engine built on [three.js](https://github.com/mrdoob/three.js) and [cannon.js](https://github.com/schteppe/cannon.js) focused on third-person character controls and related gameplay mechanics.
-
-Mostly a playground for exploring how conventional third person gameplay mechanics found in modern games work and recreating them in a general way.
-
-## Features
-
-* World
-	* Three.js scene
-	* Cannon.js physics
-	* Variable timescale
-	* Frame skipping
-	* FXAA anti-aliasing
-* Characters
-	* Third-person camera
-	* Raycast character controller with capsule collisions
-	* General state system
-	* Character AI
-* Vehicles
-	* Cars
-	* Airplanes
-	* Helicopters
-
-All planned features can be found in the [GitHub Projects](https://github.com/swift502/Sketchbook/projects).
-
-## Usage
-
-You can define your own scenes in Blender, and then read them with Sketchbook. Sketchbook needs to run on a local server such as [http-server](https://www.npmjs.com/package/http-server) or [webpack-dev-server](https://github.com/webpack/webpack-dev-server) to be able to load external assets.
-
-<!-- #### Script tag -->
-
-1. Import:
-
-```html
-<script src="sketchbook.min.js"></script>
+```sh
+npm ci --ignore-scripts --legacy-peer-deps
+npm run build:bug
+npm run play
 ```
 
-2. Load a glb scene defined in Blender:
+Open **http://127.0.0.1:4277**. Node 20+ and Python 3.11+ are required. On this workstation the `you-are-the-bug.service` user service keeps the game running.
 
-```javascript
-const world = new Sketchbook.World('scene.glb');
+The original Sketchbook scene is available at `/game/sketchbook.html`.
+
+## Controls
+
+- WASD physical keys (ZQSD on AZERTY), or arrow keys: drive.
+- Space: handbrake / drift.
+- Shift: rechargeable boost.
+- F: recover an overturned vehicle, at a cost of three seconds.
+- R: immediately restart. Escape: pause.
+- Touch controls are available on phones. Landscape gives a wider view.
+
+## Rules
+
+You start in the getaway car. Collect the white access key, then cross the perimeter through any of three exits before the 60-second simulation timer runs out. The director gets at most two interventions per attempt. Patches expire; every route is not sealed at once.
+
+| Patch | Actual effect | Opportunity |
+| --- | --- | --- |
+| Barricade | Physical wall ahead of the car | Drive around it, use another exit |
+| Gravity | Gravity changes from −9.81 to −21 | More traction; boost onto the ramp |
+| Rubber | Restitution rises; hard static impacts launch the car | Turn a collision into a jump |
+| Ice | Tire grip is reduced | Coast, brake early, drift |
+| Overdrive | Acceleration remains engaged; brake unavailable | More speed for a ramp escape |
+| Mirror | Left/right inputs swap temporarily | Reverse your steering |
+
+Best escape time is stored in this browser. Sound starts after a click and includes synthesized engine/impact sounds and optional browser speech. No microphone is used.
+
+## AI director
+
+The local Python server calls **Codex CLI using the existing ChatGPT subscription login**, model `gpt-6-luna`, low reasoning, strict JSON schema. Run `codex login` if this machine has no subscription login. API keys are not inherited. Shell, web search and skill tools are disabled for these game decisions. This does not change your global Codex settings.
+
+```sh
+python tools/bug-server.py --director codex  # default
+python tools/bug-server.py --director claude # existing Claude subscription login
+python tools/bug-server.py --offline         # explicitly local rule director
 ```
 
-<!--
+Two requests maximum per attempt, one model call at a time, 18-second deadline, eight requests per minute. Decisions are requested asynchronously; driving never waits. If the model is unavailable, over quota, invalid or late, a local rule director keeps the game playable. The HUD and result history say **AI** or **local** according to the actual source. The UI changes prepared mechanics; it does not execute generated code.
 
-#### NPM
+`GET /api/status` distinguishes authenticated availability from a successful verified model response. `POST /api/director` accepts bounded numeric game telemetry only. The server binds to localhost and rejects remote origins. Keep the inference service local; public hosting would need a different authenticated deployment.
 
-1. Install:
+## Verify
 
-```
-npm i sketchbook
-```
-
-2. Import:
-
-```javascript
-import { World } from 'sketchbook';
+```sh
+npm run test:bug
+node tests/browser/drive-check.cjs
+node tests/browser/gameplay-check.cjs
 ```
 
-3. Load a glb scene defined in Blender:
+Browser tests use isolated headless Chromium. Set `CHROMIUM_PATH` if Chromium is installed elsewhere. Screenshots are written under ignored `artifacts/`. `drive-check` uses keyboard events and the real game/physics loop to collect the key and escape around a patch. It accelerates simulation steps for reproducibility; it is not a measured human play session. `gameplay-check` verifies patch effects/expiry/reset, timeout/retry, pause, audio signal/mute and touch controls.
 
-```javascript
-const world = new World('scene.glb');
-```
-
--->
-
-## Contributing
-
-1. Get the LTS version of [Node.js](https://nodejs.org/en/) 16
-2. [Fork this repository](https://help.github.com/en/github/getting-started-with-github/fork-a-repo)
-3. Run `npm install`
-4. Run `npm run dev`
-5. Make changes and test them out at http://localhost:8080
-6. Commit and [make a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork)!
+The car's runtime geometry is reduced with Blender (`blender --background --python tools/optimize-car.py`). Source asset and attribution are preserved.
 
 ## Credits
 
-Big thank you to each of the following github users for contributing to Sketchbook:
+[Ferrari 458 Italia by vicent091036](https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6), CC BY 4.0; adapted materials, geometry and wheel attachment. Three.js, Cannon.js, Draco and Barlow fonts. Full [asset credits](docs/ASSET-LICENSES.md), also accessible inside the game.
 
-- [aleqsunder](https://github.com/aleqsunder)
-- [barhatsor](https://github.com/barhatsor)
-- [danshuri](https://github.com/danshuri)
+## Prototype limits
+
+One handcrafted arena, one controllable vehicle, six bounded modifiers. No open world, live code generation, multiplayer or character-on-foot phase. The borrowed 2020 physics engine remains in use. Automated play and smoke tests establish functionality; challenge, replay value and performance on target hardware still benefit from human playtesting.
