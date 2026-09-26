@@ -58,3 +58,15 @@ The audio assertion initially sampled silence: the idle start now silences the e
 User feedback overrides the earlier barricade mechanic: red walls appearing on the exit route contradict the green destination guidance. Removed barricade from both client and server patch catalogs, director prompt, local selection and scene spawning; five driving modifiers remain. Also removed the six loose red cargo blocks from the route. Historical tests above describe the older six-patch version.
 
 Removed the intro dedication and explanatory AI paragraph identified as distracting. Desktop and mobile intro renders inspected after removal. Build, 8 server tests and 7 game-state tests pass. The onboarding and gameplay browser suites both pass against the five-modifier version: guided key-to-exit run wins at 10.48 simulation seconds, every remaining effect spawns zero barrier bodies, effect expiry/reset and touch controls pass, no page errors.
+
+## Casting refactor — 26 September (current game)
+
+The user rejected the underlying escape game, including its empty setting, missing NPCs and lack of voices/comedy. PNJ À L’ESSAI replaces that loop with three auditions in an exterior street set. Previous key/door and patch screenshots/tests above are historical.
+
+New evidence: `tests/browser/casting-check.cjs` drives to the three actual characters, starts auditions with real H input, produces a Cannon collision, performs a moving handbrake turn, honks three times, reaches 3/3 and retries. The completed run took 20.97 simulation seconds and scored 2702; this is accelerated automated play, not a human score or evidence of enjoyment. Each audition audio returned readyState 4 and was playing. All fifteen local MP3s decode (61.1 seconds total). Eight server and seven state unit tests pass; the browser run has no page errors and no mobile overflow.
+
+Screenshots in artifacts/casting/ cover intro, street, all three auditions, result and mobile. An incorrect skinned-model bounding box initially made Michelle enormous under old Three.js; source units now determine her scale. A mobile starting prompt overlapped a dialogue; speaking now dismisses that prompt.
+
+Known scope: one street set, three authored auditions, two character models reused for three roles, procedural falls rather than ragdoll physics, followers rather than passengers inside the car. Fifteen authored lines have local audio; dynamic subscription jury lines depend on browser speech availability. The model jury is optional commentary and no longer changes driving rules. Humor, replay value and performance on the target PC still require human play.
+
+Final follow-up: corrected mobile dialogue screenshot inspected; a focused browser check passes dialogue visibility without the starting prompt, paused clock, and timeout loss.

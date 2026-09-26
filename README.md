@@ -1,8 +1,6 @@
-# YOU ARE THE BUG
+# PNJ À L’ESSAI
 
-A driving escape game. Steal the access key, find an exit, and outplay a director that changes the rules while you drive.
-
-Built on [Sketchbook](https://github.com/swift502/Sketchbook) by swift502. Original MIT license and vehicle physics retained.
+A French comedy casting game, an independent GTA VI parody. Drive to three animated candidates, honk to start an audition, perform the requested stunt, and build a cast that follows your car. The old key-and-exit game has been replaced.
 
 ## Play locally
 
@@ -12,73 +10,42 @@ npm run build:bug
 npm run play
 ```
 
-Open **http://127.0.0.1:4277**. Node 20+ and Python 3.11+ are required. On this workstation the `you-are-the-bug.service` user service keeps the game running.
+Open **http://127.0.0.1:4277**. On this workstation `you-are-the-bug.service` serves the game continuously. Reload an old tab to load the casting version.
 
-The original Sketchbook scene is available at `/game/sketchbook.html`.
+## Controls and auditions
 
-## Controls
+- Arrow keys or physical WASD (ZQSD on AZERTY): drive.
+- H or the Klaxon button: speak to a candidate within 9 metres.
+- Space: handbrake. Shift: boost. F: recover, with a three-second penalty.
+- Escape: pause. R: restart. Touch buttons are available on phones.
 
-- WASD physical keys (ZQSD on AZERTY), or arrow keys: drive.
-- Space: handbrake / drift.
-- Shift: rechargeable boost.
-- F (or touch “Sur les roues”): recover an overturned vehicle; the three-second penalty is included in the final score.
-- R: immediately restart. Escape: pause.
-- Touch controls are available on phones. Landscape gives a wider view.
+Jean-Michel Cinématique wants a real collision for his stunt reel. Samira La Star wants a moving handbrake turn. Kevin Pathfinding needs three additional honks after accepting his audition. Recruited characters follow the car. Recruit all three within 90 simulation seconds; speed of recruitment and extra drifts increase the casting fee. The clock waits for the first movement or audition.
 
-## Rules
+## Characters and sound
 
-You start in the getaway car. Collect the white access key, then cross the perimeter through any of three exits before the 60-second simulation timer runs out. The director gets at most two interventions per attempt. Patches expire. Open exits remain physically clear: the director cannot spawn walls, and the loose red cargo has been removed.
+Two local skinned Mixamo/Three.js example models provide three animated characters. Fifteen original French lines have local MP3 audio with three synthetic voices. Speech and engine audio follow the sound toggle. Dynamic jury comments use browser French speech if the browser provides it; written subtitles remain available.
 
-The timer and director wait for the first forward/reverse input. Ground arrows and a distance marker lead to a recognizable white key, then to an open green gate. French instructions keep the current objective visible separately from active effects; each rule explains its consequence and the relevant controls. Recovery also starts the timer and charges its usual penalty.
+Regenerate the authored audio using `uv run --with edge-tts python tools/generate-cast-voices.py`. The checked-in manifest is the text/file source. Generation uses the Edge TTS service; game playback uses local files.
 
-| Patch | Actual effect | Opportunity |
-| --- | --- | --- |
-| Gravity | Gravity changes from −9.81 to −21 | More traction; boost onto the ramp |
-| Rubber | Restitution rises; hard static impacts launch the car | Turn a collision into a jump |
-| Ice | Tire grip is reduced | Coast, brake early, drift |
-| Overdrive | Acceleration remains engaged; brake unavailable | More speed for a ramp escape |
-| Mirror | Left/right inputs swap temporarily | Reverse your steering |
+## Subscription jury
 
-Best escape time is stored in this browser. Sound starts after a click and includes synthesized engine/impact sounds and optional browser speech. No microphone is used.
+At most two comments per attempt are requested from the existing Codex CLI subscription (`gpt-6-luna`), with explicit local fallback. The legacy API `patch` enum now categorizes a joke; casting mode does not apply random driving penalties. Model output never executes code. Secrets are not committed or inherited into provider subprocesses.
 
-## AI director
-
-The local Python server calls **Codex CLI using the existing ChatGPT subscription login**, model `gpt-6-luna`, low reasoning, strict JSON schema. Run `codex login` if this machine has no subscription login. API keys are not inherited. Shell, web search and skill tools are disabled for these game decisions. This does not change your global Codex settings.
-
-```sh
-python tools/bug-server.py --director codex  # default
-python tools/bug-server.py --director claude # existing Claude subscription login
-python tools/bug-server.py --offline         # explicitly local rule director
-```
-
-Two requests maximum per attempt, one model call at a time, 18-second deadline, eight requests per minute. Decisions are requested asynchronously; driving never waits. If the model is unavailable, over quota, invalid or late, a local rule director keeps the game playable. The HUD and result history say **AI** or **local** according to the actual source. The UI changes prepared mechanics; it does not execute generated code.
-
-`GET /api/status` distinguishes authenticated availability from a successful verified model response. `POST /api/director` accepts bounded numeric game telemetry only. The server binds to localhost and rejects remote origins. Keep the inference service local; public hosting would need a different authenticated deployment.
+`python tools/bug-server.py --offline` runs the local jury only. `--director claude` selects an existing Claude subscription login. The Python server binds to localhost and enforces origin, request size and request budgets.
 
 ## Verify
 
 ```sh
+npm run build:bug
 npm run test:bug
 node --test tests/unit/game-state.cjs
-node tests/browser/state-check.cjs
-node tests/browser/drive-check.cjs
-node tests/browser/gameplay-check.cjs
-node tests/browser/onboarding-check.cjs # idle start, guided escape and mobile screenshots
-node tests/browser/visual-review.cjs # desktop/mobile and material close-ups
+node tests/browser/casting-check.cjs
 ```
 
-Browser tests use isolated headless Chromium. Set `CHROMIUM_PATH` if Chromium is installed elsewhere. Screenshots are written under ignored `artifacts/`. `drive-check` uses keyboard events and the real game/physics loop to collect the key and escape during a patch. It accelerates simulation steps for reproducibility; it is not a measured human play session. `gameplay-check` verifies patch effects/expiry/reset, timeout/retry, pause, audio signal/mute and touch controls. `state-check` reproduces focused Enter handling, steering reset, recovery scoring and paused controls; the unit tests exercise stale/invalid director responses.
+The casting browser suite exercises real keyboard driving, collisions, drifting, horn input, local audio loading, result/retry and mobile layout. Isolated Chromium; override `CHROMIUM_PATH` if needed. Screenshots and logs are written to ignored `artifacts/casting/`. Simulation ticks are accelerated in tests; these are not measurements of FPS, human comprehension or fun. Earlier escape-game browser scripts are historical and do not validate the casting version.
 
-The car's runtime geometry is reduced with Blender (`blender --background --python tools/optimize-car.py`). Source asset and attribution are preserved.
+## Credits and limits
 
-## Arena design
+Built on [Sketchbook](https://github.com/swift502/Sketchbook), MIT. The original scene remains at `/game/sketchbook.html`. Ferrari appearance, photographed surfaces, animated character models and audio provenance: [asset credits](docs/ASSET-LICENSES.md).
 
-A nocturnal test facility with photographed asphalt/concrete, metric texture scale, red/ivory curbs and original Voodoo / Google DeepMind tributes: Helix-inspired sculpture, sealed Hole.io aperture, AlphaFold ribbon, named AlphaGo/Gemini/Genie exits, research/retention walls and a “ONE MORE TRY” billboard. Local director jokes and the live director prompt refer to those worlds too. References are part of an independent hackathon demo; they do not describe its actual inference provider. Credits are available from the start screen.
-
-## Credits
-
-[Ferrari 458 Italia by vicent091036](https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6), CC BY 4.0; adapted materials, geometry and wheel attachment. Three.js, Cannon.js, Draco and Barlow fonts. Full [asset credits](docs/ASSET-LICENSES.md), also accessible inside the game.
-
-## Prototype limits
-
-One handcrafted arena, one controllable vehicle, five bounded modifiers. No open world, live code generation, multiplayer or character-on-foot phase. The borrowed 2020 physics engine remains in use. Automated play and smoke tests establish functionality; challenge, replay value and performance on target hardware still benefit from human playtesting.
+One street set, three authored auditions, a physical car, animated followers and optional generated jury comments. No open-world city, traffic simulation, procedural conversations or GTA assets. This is a playable prototype; human feedback must establish whether the comedy and replay loop work.

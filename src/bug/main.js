@@ -3,6 +3,8 @@ import * as CANNON from "cannon";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Car } from "../ts/vehicles/Car";
 import { Arena } from "./arena";
+import { CastActors } from "./cast-actors";
+import { Casting } from "./casting";
 import { attachCarAppearance } from "./car-appearance";
 import { GameAudio } from "./audio";
 import { PATCHES, chooseLocalPatch, validDecision } from "./rules";
@@ -16,7 +18,7 @@ class BugGame {
     this.state = "loading";
     this.round = 0;
     this.elapsed = 0;
-    this.left = 60;
+    this.left = 90;
     this.used = [];
     this.effects = new Map();
     this.history = [];
@@ -43,13 +45,13 @@ class BugGame {
     this.since = 0;
     this.lastT = performance.now();
     try {
-      this.best = Number(localStorage.getItem("youarethebug-best-v1")) || 0;
+      this.best = Number(localStorage.getItem("npc-casting-best-v1")) || 0;
       this.round =
         Number(sessionStorage.getItem("youarethebug-attempt-v1")) || 0;
     } catch {}
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x111b23);
-    this.scene.fog = new THREE.FogExp2(0x18232b, 0.0075);
+    this.scene.background = new THREE.Color(0x546b83);
+    this.scene.fog = new THREE.FogExp2(0x546b83, 0.0035);
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       powerPreference: "high-performance",
@@ -71,7 +73,7 @@ class BugGame {
     this.camera.position.set(19, 9, -40);
     this.camera.lookAt(-4, 1, -18);
     this.cameraTarget = new THREE.Vector3();
-    this.scene.add(new THREE.HemisphereLight(0xbad6ec, 0x363632, 0.55));
+    this.scene.add(new THREE.HemisphereLight(0xbad6ec, 0x363632, 1.3));
     const sun = new THREE.DirectionalLight(0xcce6ff, 1.8);
     sun.position.set(-25, 46, -20);
     sun.castShadow = true;
@@ -177,12 +179,22 @@ class BugGame {
         error,
       );
     }
+    this.actors = new CastActors(this.scene);
+    try {
+      await this.actors.load();
+    } catch (error) {
+      console.error(error);
+      this.fatal("Les personnages n’ont pas chargé. Recharge la page.");
+      return;
+    }
+    this.casting = new Casting(this, this.actors);
     this.state = "intro";
     $("start").disabled = false;
-    $("start-label").textContent = "Au volant";
+    $("start-label").textContent = "Passer le casting";
     window.__bug = this; // Readable game state for QA, no hidden fake gameplay path.
   }
   bind() {
+    $("horn").onclick = () => this.casting?.horn();
     $("start").onclick = () => {
       this.audio
         .enable()
@@ -206,12 +218,12 @@ class BugGame {
     $("share").onclick = async () => {
       const result =
         this.previousOutcome === "win"
-          ? `I escaped in ${this.elapsed.toFixed(2)}s`
-          : "The director patched me";
-      const text = `${result}. ${this.used.length} live patches. YOU ARE THE BUG.`;
+          ? `J’ai recruté 3 PNJ pour ${Math.floor(this.casting?.score || 0)} $`
+          : "Recalé au casting GTA VI";
+      const text = `${result}. PNJ À L’ESSAI.`;
       try {
         await navigator.clipboard.writeText(text);
-        $("share").textContent = "Copied. Your turn to challenge someone.";
+        $("share").textContent = "Résultat copié";
       } catch {
         $("share").textContent = text;
       }
@@ -258,6 +270,10 @@ class BugGame {
           .then(() => this.soundLabel())
           .catch(() => {});
         this.start();
+        return;
+      }
+      if (e.code === "KeyH" && this.state === "playing") {
+        this.casting?.horn();
         return;
       }
       if (e.code === "KeyF" && this.state === "playing") {
@@ -354,6 +370,8 @@ class BugGame {
   }
   start() {
     if (!this.car) return;
+    this.audio.voice?.pause();
+    window.speechSynthesis?.cancel();
     this.round++;
     try {
       sessionStorage.setItem("youarethebug-attempt-v1", String(this.round));
@@ -365,7 +383,7 @@ class BugGame {
     this.requested = 0;
     this.state = "playing";
     this.elapsed = 0;
-    this.left = 60;
+    this.left = 90;
     this.keys.clear();
     this.used = [];
     this.history = [];
@@ -385,6 +403,7 @@ class BugGame {
     this.lastPatchAt = -10;
     this.shake = 0;
     this.arena.reset();
+    this.casting?.reset();
     this.restorePhysics();
     this.resetCar();
     this.camera.position.set(0, 6, -40);
@@ -408,6 +427,7 @@ class BugGame {
       .forEach((el) => el.classList.remove("spent"));
     $("toast").classList.remove("visible");
     this.soundLabel();
+    this.casting?.hud();
     this.updateHud(0);
     this.follow(1);
     this.updateGuidance();
@@ -519,6 +539,7 @@ class BugGame {
     if (power < 3 || this.elapsed - this.lastCollision < 0.25) return;
     this.lastCollision = this.elapsed;
     this.collisions++;
+    this.casting?.collision(power);
     this.shake = Math.min(0.9, power * 0.035);
     this.audio.collision(power);
     this.arena.burst(
@@ -543,6 +564,7 @@ class BugGame {
       $("pause").hidden = false;
       this.audio.update(0, false, false);
       window.speechSynthesis?.cancel();
+      this.audio.voice?.pause();
     } else if (!value && this.state === "paused") {
       this.state = "playing";
       $("pause").hidden = true;
@@ -553,7 +575,7 @@ class BugGame {
     if (!this.clockStarted) {
       this.clockStarted = true;
       if ($("drive-prompt")) $("drive-prompt").hidden = true;
-      this.requestDecision();
+      if (!this.casting) this.requestDecision();
     }
     this.resetCar();
     const penalty = Math.min(3, this.left);
@@ -575,46 +597,35 @@ class BugGame {
     this.pending?.abort();
     this.roundToken++;
     this.pending = null;
-    if (win && (!this.best || this.elapsed < this.best)) {
-      this.best = this.elapsed;
+    const score = Math.floor(this.casting?.score || 0);
+    if (score > this.best) {
+      this.best = score;
       try {
-        localStorage.setItem("youarethebug-best-v1", String(this.best));
+        localStorage.setItem("npc-casting-best-v1", String(score));
       } catch {}
     }
     $("result").hidden = false;
     $("hud").hidden = true;
     $("result-eyebrow").textContent = win
-      ? "Clé récupérée. Sortie franchie."
-      : "Le temps est écoulé.";
-    $("result-title").textContent = win ? "ÉVADÉ !" : "TROP TARD.";
-    this.arena.message(win ? "UNPATCHABLE." : "ONE MORE TRY.");
+      ? "Trois PNJ. Aucun rôle principal."
+      : "Le casting ferme.";
+    $("result-title").textContent = win ? "EMBAUCHÉS !" : "ON TE RAPPELLERA.";
+    this.arena.message(
+      win ? "GTA VI : FIGURANTS TROUVÉS" : "LE RÔLE DU POTEAU EST PRIS",
+    );
     $("result-title").style.color = win ? "var(--mint)" : "var(--red)";
     $("result-quote").textContent = win
-      ? "“DeepMind solved Go. Voodoo solved retention. You found the exit.”"
-      : this.keyCollected
-        ? "Voodoo calls this retention. You call it one more try."
-        : "Roule sur la clé blanche pour ouvrir les portes, puis passe une porte verte.";
-    $("result-time").textContent = `${this.elapsed.toFixed(2)}s`;
-    $("result-time-label").textContent = win
-      ? "Temps de fuite"
-      : "Temps écoulé";
-    $("result-patches").textContent = `${this.used.length}/2`;
-    $("result-best").textContent = this.best ? `${this.best.toFixed(2)}s` : "—";
-    $("result-history").textContent = this.history.length
-      ? this.history
-          .map(
-            (h) =>
-              `${h.time.toFixed(1)}s · ${PATCHES[h.patch].title.replace(".", "")} (${h.source !== "local" ? "AI" : "local"})`,
-          )
-          .join("  /  ")
-      : "Sorti avant la première intervention.";
+      ? "Jean-Michel veut une cascade. Samira veut les droits à l’image. Kevin cherche encore le parking."
+      : "Tu peux toujours postuler chez Voodoo. Ils aiment les gens qui recommencent.";
+    $("result-time").textContent = `${score.toLocaleString("fr-FR")} $`;
+    $("result-time-label").textContent = "Cachet du casting";
+    $("result-patches").textContent =
+      `${this.casting?.recruited.length || 0}/3`;
+    $("result-best").textContent = `${this.best.toLocaleString("fr-FR")} $`;
+    $("result-history").textContent =
+      "Recrute plus vite et ajoute des dérapages pour augmenter ton cachet.";
     if (win) this.audio.victory();
     else this.audio.tone(70, 0.5, 0.5, "triangle");
-    this.audio.say(
-      win
-        ? "Voodoo wants a rematch. DeepMind wants your driving data."
-        : "Bug fixed. Please do not try that again.",
-    );
   }
   toast(message, duration = 3) {
     $("toast").textContent = message;
@@ -629,6 +640,12 @@ class BugGame {
         this.appearance?.update();
         this.physics.step(1 / 60, dt, 3);
         this.arena.update(dt, this.since);
+        this.actors?.update(
+          dt,
+          this.since,
+          this.car.collision.position,
+          this.car.collision.quaternion,
+        );
       }
       this.audio.update(0, false, false);
       return;
@@ -637,12 +654,18 @@ class BugGame {
       if (this.keys.has("KeyW") || this.keys.has("KeyS")) {
         this.clockStarted = true;
         $("drive-prompt").hidden = true;
-        this.requestDecision();
+        if (!this.casting) this.requestDecision();
       } else {
         this.car.update(dt);
         this.physics.step(1 / 60, dt, 3);
         this.appearance?.update();
         this.arena.update(dt, this.since);
+        this.actors?.update(
+          dt,
+          this.since,
+          this.car.collision.position,
+          this.car.collision.quaternion,
+        );
         this.follow(dt);
         this.updateHud(0);
         this.updateGuidance();
@@ -685,24 +708,8 @@ class BugGame {
     } else this.boost = Math.min(1, this.boost + dt * 0.12);
     this.physics.step(1 / 60, dt, 4);
     this.arena.update(dt, this.since);
-    if (
-      !this.keyCollected &&
-      Math.hypot(b.position.x + 11, b.position.z + 3) < 4.5
-    ) {
-      this.keyCollected = true;
-      this.arena.unlock();
-      $("objective").textContent = "2. Passe une porte verte";
-      $("objective-hint").textContent =
-        "Les portes sont ouvertes. Traverse-en une pour gagner.";
-      $("key-label").textContent = "Clé récupérée";
-      $("key-label").style.color = "var(--mint)";
-      this.toast("Clé récupérée ! Passe une porte verte pour gagner.", 3);
-      this.audio.pickup();
-    }
-    if (this.keyCollected && b.position.z > 45 && Math.abs(b.position.x) < 37) {
-      this.finish(true);
-      return;
-    }
+    this.casting?.update(dt);
+    if (this.state !== "playing") return;
     if (this.left <= 0) {
       this.finish(false);
       return;
@@ -726,24 +733,6 @@ class BugGame {
           : "Sur le toit ? Appuie sur F. −3 s",
         0.5,
       );
-    // A live decision is prefetched, with a bounded wait. Network never pauses driving.
-    const nextAt = this.used.length === 0 ? 6 : this.firstPatchAt + 7;
-    if (this.used.length < 2 && this.elapsed >= nextAt) {
-      if (this.patchDecision) {
-        this.applyPatch(this.patchDecision);
-      } else if (this.elapsed > nextAt + 11) {
-        this.pending?.abort();
-        this.pending = null;
-        this.applyPatch(chooseLocalPatch(this.snapshot()));
-      }
-    }
-    if (
-      this.used.length === 1 &&
-      this.requested === 1 &&
-      !this.pending &&
-      this.elapsed - this.firstPatchAt > 1.5
-    )
-      this.requestDecision();
     for (const [id, until] of this.effects) {
       if (this.elapsed >= until) {
         this.effects.delete(id);
@@ -768,10 +757,12 @@ class BugGame {
     this.updateGuidance();
   }
   updateGuidance() {
-    const target = this.arena.guide(
-      this.car.collision.position,
-      this.keyCollected,
-    );
+    const target = this.casting?.target();
+    $("goal-marker").hidden = !target;
+    if (!target) {
+      this.currentGoal = null;
+      return;
+    }
     this.currentGoal = target;
     const point = new THREE.Vector3(target.x, target.y, target.z);
     this.camera.updateMatrixWorld(true);
@@ -786,12 +777,11 @@ class BugGame {
     marker.classList.toggle("exit-goal", this.keyCollected);
     marker.dataset.offscreen = String(behind || Math.abs(projected.x) > 1);
     $("goal-label").textContent = behind
-      ? "Fais demi-tour"
-      : this.keyCollected
-        ? "Passe cette porte"
-        : "Roule sur la clé";
-    $("goal-distance").textContent =
-      `${Math.round(target.distance)} m${behind ? (this.keyCollected ? " · sortie derrière toi" : " · clé derrière toi") : ""}`;
+      ? "Candidat derrière toi"
+      : target.distance < 9
+        ? "H · Klaxonne"
+        : target.name;
+    $("goal-distance").textContent = `${Math.round(target.distance)} m`;
     const desiredX = clamp(
       behind ? innerWidth - rawX : rawX,
       marginX,
@@ -847,7 +837,7 @@ class BugGame {
       )
       .join(" / ");
     $("time").textContent = this.left.toFixed(2).padStart(5, "0");
-    $("time-fill").style.width = `${(this.left / 60) * 100}%`;
+    $("time-fill").style.width = `${(this.left / 90) * 100}%`;
     document.querySelector(".timer").classList.toggle("urgent", this.left < 10);
     $("speed").textContent = String(Math.round(speed * 3.6));
     $("boost-fill").style.width = `${this.boost * 100}%`;

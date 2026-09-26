@@ -28,191 +28,14 @@ export class Arena {
     this.mint = new THREE.MeshBasicMaterial({ color: 0xa9f4d0 });
     this.floor = this.surface("clean_asphalt", 0x838e96, 3, 0.95);
     this.floor.normalScale.set(0.65, 0.65);
-    this.box([95, 1, 130], [0, -0.5, 8], this.floor, true);
-    this.box([1.2, 4, 84], [-35, 2, 0], this.concrete, true);
-    this.box([1.2, 4, 84], [35, 2, 0], this.concrete, true);
-    this.box([70, 4, 1.2], [0, 2, -41], this.concrete, true);
-    for (const x of [-31, -11, 11, 31])
-      this.box(
-        [x === -31 || x === 31 ? 8 : 12, 6, 2],
-        [x, 3, 42],
-        this.concrete,
-        true,
-      );
-    // Three actual escape lanes, each can be closed without sealing the arena.
-    for (const x of [-22, 0, 22]) {
-      const gate = this.box([8, 3.2, 0.6], [x, 1.6, 42], this.metal, true);
-      gate.body.userData = { gate: true };
-      this.gates.push(gate);
-      gate.indicator = this.box(
-        [8, 0.12, 0.15],
-        [x, 3.25, 41.6],
-        this.light.clone(),
-      ).mesh;
-      this.gateSigns.push(
-        this.sign("FERMÉE / PRENDS LA CLÉ", x, 4.1, 40.85, 8, 1.2, "#f0f0e9"),
-      );
-      this.sign(
-        `EXIT / ${x === -22 ? "ALPHAGO" : x === 0 ? "GEMINI" : "GENIE"}`,
-        x,
-        6,
-        40.85,
-        8.5,
-        1.4,
-        "#a9f4d0",
-      );
-      this.box(
-        [8, 0.025, 5],
-        [x, 0.015, 46],
-        new THREE.MeshBasicMaterial({
-          color: 0xa9f4d0,
-          transparent: true,
-          opacity: 0.13,
-        }),
-      );
-    }
-    // Ground paint, parking bays and patch-test lane.
-    const paint = new THREE.MeshBasicMaterial({
-      color: 0x9ca6a8,
-      transparent: true,
-      opacity: 0.38,
-    });
-    for (let z = -36; z < 39; z += 6)
-      this.box([0.12, 0.012, 2.6], [0, 0.012, z], paint);
-    for (const x of [-27, 27]) {
-      this.box([0.13, 0.015, 69], [x, 0.02, -1], paint);
-      for (let z = -30; z < 32; z += 8)
-        this.box([6, 0.018, 0.13], [x + (x < 0 ? -3 : 3), 0.02, z], paint);
-    }
-    this.groundLabel("06", -5, -28, 9, 8, 0.22);
-    this.groundLabel("ONE MORE TRY", 3, -15, 20, 3.8, 0.44);
-    this.groundLabel("RAMP  →", 13, 7, 9, 2, 0.7);
-    this.groundLabel("EXIT", -22, 32, 7, 3, 0.6);
-    // A real Cannon slope; jumping is produced by suspension + speed.
-    this.box([7, 0.6, 15], [17, 1.85, 22], this.concrete, true, -0.25);
-    this.box([7, 0.04, 0.15], [17, 3.65, 29.2], this.light);
-    for (let z = 16; z <= 27; z += 3) {
-      const y = 1.85 + (z - 22) * 0.247 + 0.33;
-      this.box([5, 0.025, 0.12], [17, y, z], paint, false, -0.25);
-    }
-    // Industrial detail, no external world download.
-    for (const x of [-36, 36])
-      for (let z = -36; z < 48; z += 12) {
-        this.box([2, 10, 2], [x, 5, z], this.concrete);
-        this.box(
-          [0.12, 5, 0.2],
-          [x + (x < 0 ? 0.99 : -0.99), 6, z - 1.1],
-          this.light,
-        );
-        this.box(
-          [0.25, 0.25, 11],
-          [x + (x < 0 ? 1.4 : -1.4), 7.8, z + 5],
-          this.metal,
-        );
-      }
-    for (let i = 0; i < 10; i++) {
-      const x = (i % 2 ? 1 : -1) * (43 + (i % 3) * 6),
-        z = -37 + Math.floor(i / 2) * 21;
-      const h = 10 + ((i * 13) % 21);
-      this.box(
-        [11, h, 16],
-        [x, h / 2, z],
-        new THREE.MeshStandardMaterial({ color: 0x283137, roughness: 0.87 }),
-      );
-      for (let j = 3; j < h - 2; j += 5)
-        this.box(
-          [11.02, 0.1, 15.7],
-          [x, j, z],
-          new THREE.MeshBasicMaterial({ color: 0x61747f }),
-        );
-    }
-    for (const z of [-28, 13, 41]) {
-      this.box([75, 0.6, 0.6], [0, 19, z], this.metal);
-      for (let x = -25; x <= 25; x += 25) {
-        this.box(
-          [8, 0.1, 0.65],
-          [x, 18.6, z],
-          new THREE.MeshBasicMaterial({ color: 0xd4e5ec }),
-        );
-      }
-    }
-    this.buildShowground();
-    this.sign("06", -33.9, 5, -20, 5, 4, "#ff4338", Math.PI / 2);
+    this.buildStreet();
+    // Empty compatibility nodes; no key, gates or escape corridor in casting mode.
     this.key = new THREE.Group();
-    const keyModel = new THREE.Group();
-    const keyMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const head = new THREE.Mesh(
-      new THREE.TorusBufferGeometry(0.6, 0.15, 8, 32),
-      keyMaterial,
-    );
-    head.position.y = 0.7;
-    keyModel.add(head);
-    for (const [size, pos] of [
-      [
-        [0.24, 1.55, 0.22],
-        [0, -0.45, 0],
-      ],
-      [
-        [0.65, 0.23, 0.22],
-        [0.2, -0.6, 0],
-      ],
-      [
-        [0.65, 0.23, 0.22],
-        [0.2, -1.1, 0],
-      ],
-    ]) {
-      const part = new THREE.Mesh(
-        new THREE.BoxBufferGeometry(...size),
-        keyMaterial,
-      );
-      part.position.set(...pos);
-      keyModel.add(part);
-    }
-    this.key.add(keyModel);
-    const ring = new THREE.Mesh(
-      new THREE.TorusBufferGeometry(1.7, 0.055, 8, 48),
-      new THREE.MeshBasicMaterial({ color: 0xf0f0e9 }),
-    );
-    ring.rotation.x = Math.PI / 2;
-    ring.position.y = -1.5;
-    this.key.add(ring);
-    this.key.position.set(-11, 2.4, -3);
-    scene.add(this.key);
-    this.keyBeam = this.box(
-      [0.055, 14, 0.055],
-      [-11, 7, -3],
-      new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.5,
-      }),
-    ).mesh;
-    this.sign("CLÉ / ROULE DESSUS", -11, 5, -3, 8, 1, "#f0f0e9");
-    this.keySign = this.scene.children[this.scene.children.length - 1];
+    this.key.add(new THREE.Group());
+    this.keyBeam = new THREE.Group();
+    this.keySign = new THREE.Group();
     this.route = [];
-    const arrowShape = new THREE.Shape();
-    arrowShape.moveTo(0, 0.8);
-    arrowShape.lineTo(-0.65, -0.1);
-    arrowShape.lineTo(-0.23, -0.1);
-    arrowShape.lineTo(-0.23, -0.75);
-    arrowShape.lineTo(0.23, -0.75);
-    arrowShape.lineTo(0.23, -0.1);
-    arrowShape.lineTo(0.65, -0.1);
-    arrowShape.closePath();
-    const arrowGeometry = new THREE.ShapeBufferGeometry(arrowShape);
-    this.routeMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.9,
-      depthWrite: false,
-    });
-    for (let i = 0; i < 9; i++) {
-      const arrow = new THREE.Mesh(arrowGeometry, this.routeMaterial);
-      arrow.rotation.x = -Math.PI / 2;
-      arrow.visible = false;
-      scene.add(arrow);
-      this.route.push(arrow);
-    }
+    this.routeMaterial = new THREE.MeshBasicMaterial();
     const converted = new Set();
     this.scene.traverse((o) => {
       if (o.isMesh && o.material && !converted.has(o.material)) {
@@ -229,6 +52,125 @@ export class Arena {
       scene.add(m);
       this.particles.push({ mesh: m, velocity: new THREE.Vector3(), life: 0 });
     }
+  }
+  buildStreet() {
+    this.box([110, 1, 150], [0, -0.5, 8], this.floor, true);
+    const white = new THREE.MeshStandardMaterial({
+      color: 0xc5cecf,
+      roughness: 0.88,
+    });
+    const glass = new THREE.MeshStandardMaterial({
+      color: 0x192a36,
+      metalness: 0.7,
+      roughness: 0.19,
+    });
+    const neon = new THREE.MeshBasicMaterial({ color: 0xa9f4d0 });
+    for (const x of [-32, 32]) {
+      this.box([14, 0.25, 136], [x, 0.06, 8], this.concrete);
+      for (let z = -40; z < 65; z += 20) {
+        const h = 12 + (((z + 40) / 20) % 3) * 7;
+        this.box(
+          [15, h, 17],
+          [x + (x < 0 ? -4 : 4), h / 2, z],
+          this.concrete,
+          true,
+        );
+        for (let y = 4; y < h - 1; y += 3.8)
+          for (let k = -5; k <= 5; k += 3.4) {
+            this.box(
+              [0.09, 2.2, 2.3],
+              [x + (x < 0 ? 3.6 : -3.6), y, z + k],
+              glass,
+            );
+            this.box(
+              [0.16, 0.08, 2.4],
+              [x + (x < 0 ? 3.7 : -3.7), y - 1.1, z + k],
+              white,
+            );
+          }
+        const side = x < 0 ? 1 : -1;
+        this.box([0.12, 3.2, 13], [x + side * 3.6, 1.9, z], glass);
+        this.box([2.3, 0.16, 14], [x + side * 4.5, 3.7, z], this.red);
+        this.sign(
+          z === 0
+            ? "VOODOO CASTING"
+            : z === 20
+              ? "DEEPMIND / COURS DE CONDUITE"
+              : "FIGURANTS À EMPORTER",
+          x + side * 3.75,
+          5,
+          z,
+          13,
+          1,
+          "#f0f0e9",
+          (side * Math.PI) / 2,
+        );
+      }
+    }
+    // Painted crosswalk and street furniture make the auditions happen on a street.
+    for (let x = -22; x < 23; x += 3)
+      this.box([1.7, 0.015, 7], [x, 0.03, 7], white);
+    for (let z = -55; z < 73; z += 8)
+      this.box([0.15, 0.015, 3.5], [0, 0.035, z], white);
+    for (const x of [-24, 24])
+      for (const z of [-27, 15, 49]) {
+        this.box([0.16, 8, 0.16], [x, 4, z], this.metal);
+        this.box(
+          [3.5, 0.12, 0.18],
+          [x + (x < 0 ? 1.6 : -1.6), 8, z],
+          this.metal,
+        );
+        this.box([2.5, 0.06, 0.35], [x + (x < 0 ? 1.5 : -1.5), 7.9, z], neon);
+        const trunk = new THREE.Mesh(
+          new THREE.CylinderBufferGeometry(0.15, 0.32, 7, 10),
+          this.concrete,
+        );
+        trunk.position.set(x, 3.5, z + 5);
+        this.scene.add(trunk);
+        const leafMaterial = new THREE.MeshStandardMaterial({
+          color: 0x294e40,
+          side: THREE.DoubleSide,
+          roughness: 0.9,
+        });
+        for (let j = 0; j < 7; j++) {
+          const shape = new THREE.Shape();
+          shape.moveTo(0, 0);
+          shape.quadraticCurveTo(1.3, 1.4, 4.5, -1.3);
+          shape.quadraticCurveTo(1.6, -0.1, 0, 0);
+          const leaf = new THREE.Mesh(
+            new THREE.ShapeBufferGeometry(shape),
+            leafMaterial,
+          );
+          leaf.rotation.set(-0.65, (j * Math.PI * 2) / 7, 0.3);
+          leaf.position.set(x, 7, z + 5);
+          this.scene.add(leaf);
+        }
+      }
+    this.box([7, 0.6, 15], [17, 1.85, 31], this.concrete, true, -0.25);
+    this.groundLabel("CASTING GTA VI", 0, -32, 23, 4, 0.8);
+    this.groundLabel("CASCADEUR SANS ASSURANCE", -12, -8, 18, 2, 0.5);
+    this.box([30, 6, 0.6], [0, 12, 64], this.metal);
+    this.billboard = this.sign(
+      "GTA VI / FIGURANTS RECHERCHÉS",
+      0,
+      12,
+      63.5,
+      29,
+      4.4,
+      "#f0f0e9",
+    );
+    this.sign(
+      "VOODOO / LE RÔLE PRINCIPAL EST DÉJÀ PRIS",
+      0,
+      8.2,
+      63.5,
+      27,
+      1.2,
+      "#a9f4d0",
+    );
+    for (const x of [-12, 12])
+      this.box([0.5, 9, 0.5], [x, 4.5, 64], this.metal);
+    this.addTireMarks();
   }
   surface(name, color, tileSize, roughness) {
     const loader = new THREE.TextureLoader();
@@ -645,7 +587,7 @@ export class Arena {
     this.open = true;
   }
   reset() {
-    this.message("ONE MORE TRY.");
+    this.message("GTA VI / FIGURANTS RECHERCHÉS");
     this.clearPatches();
     this.open = false;
     this.setGateLabels(false);

@@ -1243,3 +1243,427 @@ h1 {
     transition: none !important;
   }
 }
+
+/* Casting: leave the street visible, keep the conversation beside the action. */
+.intro-copy {
+  width: min(550px, 100%);
+}
+#intro {
+  background: linear-gradient(90deg, #0c1013eb, #0c1013bc 36%, #0c101300 78%);
+}
+h1 {
+  font-size: clamp(58px, 6.5vw, 90px);
+  line-height: 0.9;
+  margin-bottom: 20px;
+}
+.intro-line {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+.intro-mission {
+  font-size: 22px;
+  margin-bottom: 23px;
+}
+.mission-steps {
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.mission-steps li {
+  padding: 12px 0 10px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #ffffff50;
+}
+.mission-steps li:nth-child(2) {
+  border-color: #ffffff50;
+}
+.step-number {
+  position: static;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--red);
+}
+.mission-steps strong {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+#hud .director,
+#hud #patch,
+#hud .map-wrap,
+#hud #effect-status {
+  display: none;
+}
+.casting-pay {
+  position: absolute;
+  right: 36px;
+  top: 92px;
+  text-align: right;
+}
+.casting-pay strong {
+  display: block;
+  font:
+    800 48px/1 BarlowCondensed,
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.casting-pay > span {
+  font-size: 14px;
+  color: var(--muted);
+}
+#cast-roster {
+  position: absolute;
+  right: 36px;
+  top: 164px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+#cast-roster > * {
+  padding: 6px 10px;
+  background: #10161adc;
+  border-right: 2px solid #ffffff50;
+  font-size: 13px;
+  color: var(--muted);
+}
+#cast-roster .recruited,
+#cast-roster .done {
+  color: var(--mint);
+  border-color: var(--mint);
+}
+#dialogue {
+  position: absolute;
+  bottom: 91px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 380px));
+  padding: 13px 19px 15px;
+  background: #10161af2;
+  border-left: 3px solid var(--red);
+  box-shadow: 0 8px 24px #0005;
+}
+#speaker {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+}
+#dialogue-line {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.3;
+}
+#audition-meter {
+  position: absolute;
+  bottom: 211px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 330px;
+  max-width: calc(100% - 400px);
+  text-align: center;
+  padding: 9px 12px;
+  background: #10161ae8;
+}
+#audition-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.audition-track {
+  margin-top: 8px;
+  height: 6px;
+  background: #ffffff25;
+  overflow: hidden;
+}
+#audition-progress {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--mint);
+  transition: width 0.1s linear;
+}
+#horn {
+  position: absolute;
+  right: 36px;
+  bottom: 185px;
+  z-index: 3;
+  pointer-events: auto;
+  min-height: 48px;
+  padding: 12px 20px;
+  background: var(--red);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 18px;
+  border: 1px solid #ffffff30;
+  border-radius: 3px;
+  touch-action: manipulation;
+}
+#horn:active {
+  transform: translateY(2px);
+}
+#drive-prompt {
+  bottom: 105px;
+}
+#toast {
+  bottom: 295px;
+}
+@media (pointer: coarse) {
+  #horn {
+    right: 20px;
+    bottom: 93px;
+  }
+  #horn > span {
+    display: none;
+  }
+  #dialogue {
+    bottom: 164px;
+  }
+  #audition-meter {
+    bottom: 281px;
+  }
+  #drive-prompt {
+    bottom: 170px;
+  }
+  .speed {
+    display: none;
+  }
+  #recover-touch {
+    right: auto;
+    left: 20px;
+    bottom: 95px;
+  }
+}
+@media (max-width: 600px) {
+  #intro {
+    background: linear-gradient(90deg, #0c1013e3, #0c10139c);
+  }
+  h1 {
+    font-size: clamp(54px, 14vw, 74px);
+    margin-bottom: 20px;
+  }
+  .intro-line {
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+  .intro-mission {
+    font-size: 19px;
+    margin-bottom: 20px;
+  }
+  .mission-steps {
+    gap: 10px;
+    margin-bottom: 23px;
+  }
+  .mission-steps strong {
+    font-size: 15px;
+  }
+  .mission-steps li {
+    padding: 11px 0 8px;
+  }
+  .step-number {
+    margin-bottom: 7px;
+    font-size: 11px;
+  }
+  .objective {
+    top: 119px;
+    padding: 11px 13px;
+  }
+  .objective h2 {
+    font-size: 20px;
+  }
+  .casting-pay {
+    top: 76px;
+    right: 18px;
+  }
+  .casting-pay strong {
+    font-size: 30px;
+  }
+  .casting-pay > span {
+    position: absolute;
+    right: 100%;
+    top: 12px;
+    margin-right: 8px;
+    font-size: 11px;
+  }
+  #cast-roster {
+    top: 81px;
+    left: 17px;
+    right: 110px;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+  #cast-roster > * {
+    font-size: 10px;
+    padding: 4px 5px;
+    border-right: 0;
+    border-bottom: 2px solid #ffffff50;
+    max-width: 78px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  #dialogue {
+    left: 16px;
+    right: 16px;
+    width: auto;
+    transform: none;
+    padding: 12px 15px;
+    bottom: 160px;
+  }
+  #dialogue-line {
+    font-size: 19px;
+    line-height: 1.3;
+  }
+  #speaker {
+    font-size: 12px;
+  }
+  #audition-meter {
+    bottom: 284px;
+    width: 250px;
+    max-width: calc(100% - 32px);
+  }
+  #audition-label {
+    font-size: 13px;
+  }
+  #horn {
+    right: 16px;
+    bottom: 92px;
+    min-height: 46px;
+    font-size: 17px;
+    padding: 10px 18px;
+  }
+  #recover-touch {
+    left: 16px;
+    right: auto;
+    bottom: 93px;
+  }
+  #drive-prompt {
+    bottom: 175px;
+  }
+  #toast {
+    bottom: 347px;
+  }
+}
+@media (max-height: 560px) and (min-width: 601px) {
+  .screen {
+    padding-top: 60px;
+    padding-bottom: 12px;
+  }
+  .intro-copy {
+    width: 490px;
+    display: block;
+  }
+  .intro-line {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 44px;
+    margin-bottom: 10px;
+  }
+  h1 br {
+    display: none;
+  }
+  .intro-mission {
+    font-size: 18px;
+    margin-bottom: 11px;
+  }
+  .mission-steps {
+    margin-bottom: 13px;
+  }
+  .mission-steps li {
+    padding: 7px 0;
+  }
+  .mission-steps strong {
+    font-size: 14px;
+  }
+  .mission-steps strong br {
+    display: none;
+  }
+  .step-number {
+    margin-bottom: 4px;
+  }
+  #start {
+    width: 270px;
+    padding: 9px 15px;
+  }
+  .intro-controls {
+    font-size: 11px;
+    margin: 7px 0 0;
+  }
+  .credits {
+    font-size: 11px;
+    margin-top: 3px;
+  }
+  .casting-pay {
+    top: 65px;
+    right: 24px;
+  }
+  .casting-pay strong {
+    font-size: 34px;
+  }
+  .casting-pay > span {
+    font-size: 11px;
+  }
+  #cast-roster {
+    top: 116px;
+    right: 24px;
+    gap: 3px;
+  }
+  #cast-roster > * {
+    font-size: 11px;
+    padding: 3px 7px;
+  }
+  .objective {
+    width: 260px;
+  }
+  #dialogue {
+    bottom: 89px;
+    width: 390px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    padding: 9px 13px;
+  }
+  #speaker {
+    font-size: 11px;
+    margin-bottom: 3px;
+  }
+  #dialogue-line {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  #audition-meter {
+    bottom: 183px;
+    width: 240px;
+    max-width: 40%;
+    padding: 7px 10px;
+  }
+  #audition-label {
+    font-size: 12px;
+  }
+  #horn {
+    right: 20px;
+    bottom: 87px;
+    min-height: 39px;
+    padding: 8px 13px;
+    font-size: 16px;
+  }
+  #recover-touch {
+    left: 20px;
+    right: auto;
+    bottom: 88px;
+  }
+  #drive-prompt {
+    bottom: 92px;
+  }
+  #toast {
+    bottom: 246px;
+    font-size: 16px;
+  }
+}
+
+#cast-roster i { display:inline-flex; width:20px; height:20px; align-items:center; justify-content:center; margin-right:8px; border:1px solid currentColor; font-style:normal; }

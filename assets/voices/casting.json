@@ -1,0 +1,17 @@
+{
+  "Tape un mur. Je tombe. On appelle ça du cinéma.": "/assets/voices/0-brief.mp3",
+  "Parfait. Ma mutuelle vient de me bloquer.": "/assets/voices/0-accepted.mp3",
+  "Même le mur joue mieux que toi.": "/assets/voices/0-fail.mp3",
+  "Fais un dérapage. Je dirai que je conduisais.": "/assets/voices/1-brief.mp3",
+  "Je coupe le crash au montage. Google DeepMind fera le reste.": "/assets/voices/1-accepted.mp3",
+  "Je vais devoir acheter des vues pour ça.": "/assets/voices/1-fail.mp3",
+  "Trois coups de klaxon. Sinon je continue à marcher dans ce mur.": "/assets/voices/2-brief.mp3",
+  "Merci. Ça faisait vingt-trois ans que je cherchais le trottoir.": "/assets/voices/2-accepted.mp3",
+  "Recalcul de l’itinéraire. Recalcul de l’itinéraire.": "/assets/voices/2-fail.mp3",
+  "Une fois, c’est peut-être le vent.": "/assets/voices/extra-0.mp3",
+  "Deux fois… DeepMind appelle ça de l’apprentissage.": "/assets/voices/extra-1.mp3",
+  "C’était pas dans mon contrat. Enfin, j’ai pas de contrat.": "/assets/voices/extra-2.mp3",
+  "Voodoo garde les joueurs. Moi je garde le traumatisme.": "/assets/voices/extra-3.mp3",
+  "C’est ça, le monde ouvert ? Le mur était fermé.": "/assets/voices/extra-4.mp3",
+  "Approche-toi d’un candidat avant de klaxonner.": "/assets/voices/extra-5.mp3"
+}

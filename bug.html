@@ -9,9 +9,9 @@
     <meta name="theme-color" content="#101316" />
     <meta
       name="description"
-      content="Roule sur la clé blanche, puis franchis une porte verte avant 60 secondes. Une IA tente de bloquer ta fuite."
+      content="Un casting de PNJ en voiture : klaxonne, réussis trois cascades absurdes et recrute ta troupe."
     />
-    <title>YOU ARE THE BUG — Break the game.</title>
+    <title>PNJ À L’ESSAI — Trois auditions. Zéro talent requis.</title>
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23ff4338'/%3E%3Cpath d='M18 16h22v12H28v8h18v12H18z' fill='%23101316'/%3E%3C/svg%3E"
@@ -19,11 +19,11 @@
     <link rel="stylesheet" href="dist/bug.css" />
   </head>
   <body>
-    <main id="game" aria-label="Jeu de fuite en voiture"></main>
+    <main id="game" aria-label="Casting de PNJ en voiture"></main>
     <div id="vignette"></div>
     <div id="impact"></div>
     <header id="masthead">
-      <span class="wordmark">YOU ARE THE BUG<span class="period">.</span></span
+      <span class="wordmark">PNJ À L’ESSAI<span class="period">.</span></span
       ><button
         id="sound"
         class="icon-button"
@@ -35,61 +35,33 @@
     </header>
     <section id="intro" class="screen">
       <div class="intro-copy">
-        <h1>YOU ARE THE <span>BUG.</span></h1>
-        <p class="intro-mission">Prends la clé. Passe la porte. Échappe-toi.</p>
-        <ol class="mission-steps" aria-label="Comment gagner">
+        <p class="intro-line">Casting sauvage · Parodie GTA VI</p>
+        <h1>T’AS LE PROFIL<br />D’UN <span>PNJ.</span></h1>
+        <p class="intro-mission">Trois auditions. Zéro talent requis.</p>
+        <ol class="mission-steps" aria-label="Comment jouer">
           <li>
-            <svg
-              viewBox="0 0 48 48"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              aria-hidden="true"
-            >
-              <circle cx="16" cy="17" r="9" />
-              <path d="m23 24 17 17m-7-7 5-5m-12-2 5-5" />
-            </svg>
             <span class="step-number">01</span
-            ><strong>Roule sur la<br />clé blanche</strong>
+            ><strong>Klaxonne près<br />d’un candidat</strong>
           </li>
           <li>
-            <svg
-              viewBox="0 0 48 48"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              aria-hidden="true"
-            >
-              <path d="M8 42V6h27v36M4 42h36M20 24h24m-7-7 7 7-7 7" />
-            </svg>
             <span class="step-number">02</span
-            ><strong>Passe une<br />porte verte</strong>
+            ><strong>Fais<br />sa cascade</strong>
           </li>
           <li>
-            <svg
-              viewBox="0 0 48 48"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              aria-hidden="true"
-            >
-              <circle cx="24" cy="27" r="16" />
-              <path d="M24 17v11l7 4M18 4h12M24 4v7m12 1 4-4" />
-            </svg>
             <span class="step-number">03</span
-            ><strong>Avant<br />60 secondes</strong>
+            ><strong>Recrute<br />le casting</strong>
           </li>
         </ol>
         <button id="start" class="primary" disabled>
-          <span id="start-label">Préparation de la voiture…</span
+          <span id="start-label">Préparation du casting…</span
           ><span aria-hidden="true">↗</span>
         </button>
         <p class="intro-controls keyboard-instructions">
           <kbd>↑</kbd> Avancer <span>·</span> <kbd>← →</kbd> Tourner
-          <span>·</span> ZQSD aussi
+          <span>·</span> <kbd>H</kbd> Klaxon
         </p>
         <p class="intro-controls touch-instructions">
-          Maintiens ↑ pour avancer, ← → pour tourner.
+          ↑ Avancer · ← → Tourner · Klaxon pour parler.
         </p>
         <a
           class="credits"
@@ -99,20 +71,15 @@
           >Crédits</a
         >
       </div>
-      <div class="intro-stamp">
-        <span>Voodoo × Google DeepMind · Clin d’œil indépendant</span
-        ><strong>LE LABO VEUT TE GARDER.</strong
-        ><span>Montre-lui la sortie.</span>
-      </div>
     </section>
     <section id="hud" hidden aria-label="État de la partie">
       <div class="objective">
         <span id="round-label">Tentative 01</span>
-        <h2 id="objective">Roule sur la clé blanche.</h2>
-        <p id="objective-hint">Suis le repère blanc.</p>
+        <h2 id="objective">Rejoins ton premier candidat.</h2>
+        <p id="objective-hint">Approche-toi, puis klaxonne.</p>
       </div>
       <div class="timer">
-        <span id="time">60.00</span>
+        <span id="time">90.00</span>
         <div class="timer-line"><i id="time-fill"></i></div>
       </div>
       <div class="director">
@@ -135,10 +102,32 @@
           id="map"
           width="220"
           height="240"
-          aria-label="Plan : clé blanche, sorties vertes, voiture rouge"
+          aria-label="Plan du casting : candidats et voiture"
         ></canvas
-        ><span id="key-label">○ Clé à récupérer</span>
+        ><span id="key-label">0 / 3 PNJ recrutés</span>
       </div>
+      <div class="casting-pay">
+        <strong id="casting-score">0 €</strong><span>Cachet</span>
+      </div>
+      <div id="cast-roster" aria-label="Ton casting">
+        <span>01 · À recruter</span><span>02 · À recruter</span
+        ><span>03 · À recruter</span>
+      </div>
+      <div id="dialogue" role="status" aria-live="polite" hidden>
+        <span id="speaker"></span>
+        <p id="dialogue-line"></p>
+      </div>
+      <div id="audition-meter" hidden>
+        <span id="audition-label">L’audition commence</span>
+        <div class="audition-track"><i id="audition-progress"></i></div>
+      </div>
+      <button
+        id="horn"
+        type="button"
+        aria-label="Klaxonner pour parler au candidat"
+      >
+        Klaxon <span>· H</span>
+      </button>
       <div id="toast" role="status"></div>
       <div id="drive-prompt" role="status">
         <strong>Maintiens ↑ pour avancer</strong>
@@ -146,7 +135,7 @@
       </div>
       <div id="effect-status" hidden aria-live="polite"></div>
       <div id="goal-marker" hidden>
-        <span id="goal-label">CLÉ BLANCHE</span>
+        <span id="goal-label">CANDIDAT</span>
         <strong id="goal-distance"></strong>
         <svg
           class="goal-pointer"
@@ -196,24 +185,26 @@
         <p>Le chrono est en pause.</p>
         <h2>PETITE<br />PAUSE.</h2>
         <button id="resume" class="primary">
-          Reprendre la fuite <span>↗</span></button
+          Reprendre le casting <span>↗</span></button
         ><button id="pause-retry" class="text-button">Recommencer</button>
       </div>
     </section>
     <section id="result" class="screen backdrop" hidden>
       <div class="result-copy">
-        <p id="result-eyebrow">Tu as trouvé la sortie.</p>
-        <h2 id="result-title">ÉCHAPPÉ !</h2>
+        <p id="result-eyebrow">Le casting est terminé.</p>
+        <h2 id="result-title">EMBAUCHÉ !</h2>
         <p id="result-quote"></p>
         <div class="result-stats">
           <div>
             <strong id="result-time"></strong
-            ><span id="result-time-label">Temps de fuite</span>
+            ><span id="result-time-label">Cachet</span>
           </div>
           <div>
-            <strong id="result-patches"></strong><span>Pièges traversés</span>
+            <strong id="result-patches"></strong><span>PNJ recrutés</span>
           </div>
-          <div><strong id="result-best"></strong><span>Ton record</span></div>
+          <div>
+            <strong id="result-best"></strong><span>Meilleur cachet</span>
+          </div>
         </div>
         <div id="result-history"></div>
         <button id="retry" class="primary">

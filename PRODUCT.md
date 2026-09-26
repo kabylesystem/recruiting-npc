@@ -7,7 +7,7 @@ product
 Kusaila et les personnes qui essaient le jeu pendant le hackathon parisien. Une première partie doit être compréhensible sans explication orale ni connaissance des jeux de voiture.
 
 ## Product Purpose
-Conduire vers une clé, traverser une sortie avant 60 secondes, s'adapter aux deux interventions du directeur. Originalité et envie de recommencer demandées par Kusaila ; pas encore mesurées chez des joueurs.
+Casting comique de PNJ pour une parodie de GTA VI : klaxonner près de trois personnages, réussir leur audition (cascade, dérapage, klaxon), former une troupe visible et battre son cachet en 90 secondes. Personnages humains animés et répliques audio françaises. L'ancien jeu clé→porte est rejeté et remplacé.
 
 ## Brand Personality
 Absurde, provocateur, ludique. Références très visibles à Voodoo et Google DeepMind demandées ; humour dans le décor et les réactions.
@@ -24,3 +24,6 @@ Le prototype initial, dont Kusaila ne comprend pas le gameplay : diamant ambigu,
 
 ## Accessibility & Inclusion
 Commandes clavier et tactile, textes d'action en français, formes et mots en complément des couleurs. Respecter la réduction de mouvement et vérifier portrait/paysage. Aucun niveau de conformité WCAG certifié.
+
+## Priorité du 26/09 : cœur ludique
+Kusaila rejette un hangar vide avec clé/porte même fonctionnel et lisible. Il demande PNJ, GTA VI, personnages, voix, humour et situations. Les noms de sponsors et une victoire automatisée ne constituent pas du fun. Rue de tournage, auditions incarnées et réactions audibles ; ressenti humain toujours à valider.

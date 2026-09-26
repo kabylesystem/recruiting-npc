@@ -39,3 +39,8 @@ Barlow and Barlow Condensed by Jeremy Tribby, SIL Open Font License 1.1. License
 ## Voodoo / Google DeepMind tribute
 
 Voodoo, Helix Jump, Hole.io, Mob Control, Paper.io, Google DeepMind, Gemini, AlphaGo, AlphaFold and Genie are editorial references in an independent hackathon tribute. Signs and sculptures are original geometry/canvas artwork. No logos or game artwork were copied; this is not an official Voodoo or Google product. These names do not identify the actual inference provider.
+
+## Casting characters and voices (26 September)
+
+- Soldier and Michelle animated character assets: Three.js r160 examples, originally Mixamo / Adobe. Sources: https://github.com/mrdoob/three.js/tree/r160/examples/models/gltf and the official https://threejs.org/examples/webgl_animation_multiple.html / https://threejs.org/examples/webgl_animation_skinning_morph.html examples. Models are integrated in this game, not offered as an asset library. Three.js code is MIT; do not describe the Mixamo character content as CC0.
+- French dialogue: original text written for this prototype. Local MP3 files generated with Edge TTS (Henri, Denise and Remy neural voices), not imitations of real actors or GTA characters. Manifest assets/voices/casting.json; regeneration via `uv run --with edge-tts python tools/generate-cast-voices.py`. Dynamic jury remarks use browser French speech if available; the 15 authored lines have local audio.

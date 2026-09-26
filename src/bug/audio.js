@@ -1,3 +1,4 @@
+import CAST_VOICES from "../../assets/voices/casting.json";
 export class GameAudio {
   constructor() {
     this.enabled = false;
@@ -31,7 +32,26 @@ export class GameAudio {
     this.master.gain.setValueAtTime(0.22, this.context.currentTime);
     this.tone(140, 0.08, 0.2);
   }
+  sayFrench(text) {
+    if (!this.enabled) return;
+    this.voice?.pause();
+    window.speechSynthesis?.cancel();
+    const file = CAST_VOICES[text];
+    if (file) {
+      this.voice = new Audio(file);
+      this.voice.volume = 0.85;
+      this.voice.play().catch(() => {});
+      return;
+    }
+    if (window.speechSynthesis) {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "fr-FR";
+      u.rate = 1.04;
+      speechSynthesis.speak(u);
+    }
+  }
   mute() {
+    this.voice?.pause();
     this.enabled = false;
     if (this.context) {
       this.master.gain.cancelScheduledValues(0);
